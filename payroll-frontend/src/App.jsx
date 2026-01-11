@@ -1,11 +1,7 @@
+import Dashboard from "./pages/Dashboard";
+
 function App() {
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <h1 className="text-3xl font-bold text-blue-600">
-        Payroll Frontend 🚀
-      </h1>
-    </div>
-  );
+  return <Dashboard />;
 }
 
 export default App;
