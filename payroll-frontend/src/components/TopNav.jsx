@@ -11,7 +11,7 @@ const TopNav = () => {
     { label: "Attendance", path: "/attendance" },
     { label: "Payroll", path: "/payroll" },
     { label: "Reports", path: "/reports" },
-    { label: "Settings", path: "/settings" },
+    
   ];
 
   const isActive = (path) => {
