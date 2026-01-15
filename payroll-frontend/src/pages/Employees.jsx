@@ -1,8 +1,1157 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import TopNav from "../components/TopNav";
 
+// Move AddEmployeeForm component outside to prevent re-renders
+const AddEmployeeForm = React.memo(({ 
+  isOpen, 
+  onClose, 
+  currentStep,
+  formData,
+  formErrors,
+  availableDepartments,
+  handleFormChange,
+  handleFileChange, // New prop
+  nextStep,
+  prevStep,
+  handleAddEmployee,
+  handleCloseAddModal
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Add New Employee</h2>
+              <p className="text-gray-600 mt-1">Complete all sections to add a new employee</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Progress Steps */}
+          <div className="mb-8">
+            <div className="flex justify-between mb-2">
+              {[1, 2, 3, 4, 5, 6].map((step) => ( // Changed from 5 to 6 steps
+                <div
+                  key={step}
+                  className={`flex flex-col items-center ${step <= currentStep ? 'text-blue-600' : 'text-gray-400'}`}
+                >
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                    step === currentStep ? 'bg-blue-100 border-2 border-blue-600' :
+                    step < currentStep ? 'bg-green-100 border-2 border-green-600' :
+                    'bg-gray-100 border-2 border-gray-300'
+                  }`}>
+                    {step < currentStep ? (
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <span className="font-semibold">{step}</span>
+                    )}
+                  </div>
+                  <span className="text-xs font-medium">
+                    {step === 1 && 'Personal'}
+                    {step === 2 && 'Qualifications'}
+                    {step === 3 && 'Job Details'}
+                    {step === 4 && 'EPF/ETF'}
+                    {step === 5 && 'Bank Details'}
+                    {step === 6 && 'Documents'} {/* New step */}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="relative h-2 bg-gray-200 rounded-full">
+              <div
+                className="absolute top-0 left-0 h-full bg-blue-600 rounded-full transition-all duration-300"
+                style={{ width: `${(currentStep - 1) * 20}%` }} // Changed to 20% increments for 6 steps
+              />
+            </div>
+          </div>
+
+          <form onSubmit={handleAddEmployee}>
+            {/* Step 1: Personal Information */}
+            {currentStep === 1 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                  Personal Information
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        First Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.firstName ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      />
+                      {formErrors.firstName && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.firstName}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Last Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.lastName ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      />
+                      {formErrors.lastName && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.lastName}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Date of Birth *
+                      </label>
+                      <input
+                        type="date"
+                        name="dateOfBirth"
+                        value={formData.dateOfBirth || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      />
+                      {formErrors.dateOfBirth && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.dateOfBirth}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Gender *
+                      </label>
+                      <select
+                        name="gender"
+                        value={formData.gender || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.gender ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                      {formErrors.gender && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.gender}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.email ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="employee@company.com"
+                      />
+                      {formErrors.email && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Mobile Number *
+                      </label>
+                      <input
+                        type="tel"
+                        name="mobile"
+                        value={formData.mobile || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.mobile ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="+94 77 123 4567"
+                      />
+                      {formErrors.mobile && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.mobile}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        NIC Number *
+                      </label>
+                      <input
+                        type="text"
+                        name="nicNumber"
+                        value={formData.nicNumber || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.nicNumber ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="e.g., 199012345678"
+                      />
+                      {formErrors.nicNumber && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.nicNumber}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Permanent Address *
+                      </label>
+                      <textarea
+                        name="permanentAddress"
+                        value={formData.permanentAddress || ''}
+                        onChange={handleFormChange}
+                        rows="2"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.permanentAddress ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      />
+                      {formErrors.permanentAddress && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.permanentAddress}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Qualification Details */}
+            {currentStep === 2 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                  Qualification Details
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Highest Qualification *
+                      </label>
+                      <select
+                        name="highestQualification"
+                        value={formData.highestQualification || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.highestQualification ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      >
+                        <option value="">Select Qualification</option>
+                        <option value="PhD">PhD</option>
+                        <option value="Master's Degree">Master's Degree</option>
+                        <option value="Bachelor's Degree">Bachelor's Degree</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="Advanced Level">Advanced Level (A/L)</option>
+                        <option value="Ordinary Level">Ordinary Level (O/L)</option>
+                        <option value="Certificate">Certificate</option>
+                      </select>
+                      {formErrors.highestQualification && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.highestQualification}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        University/Institution
+                      </label>
+                      <input
+                        type="text"
+                        name="university"
+                        value={formData.university || ''}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Year of Graduation
+                      </label>
+                      <input
+                        type="number"
+                        name="yearOfGraduation"
+                        value={formData.yearOfGraduation || ''}
+                        onChange={handleFormChange}
+                        min="1950"
+                        max="2024"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Degree/Field of Study
+                      </label>
+                      <input
+                        type="text"
+                        name="degree"
+                        value={formData.degree || ''}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Professional Qualifications
+                      </label>
+                      <textarea
+                        name="professionalQualifications"
+                        value={formData.professionalQualifications || ''}
+                        onChange={handleFormChange}
+                        rows="3"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="List professional certifications"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Technical Skills
+                      </label>
+                      <textarea
+                        name="technicalSkills"
+                        value={formData.technicalSkills || ''}
+                        onChange={handleFormChange}
+                        rows="2"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., React, Node.js, Python, AWS"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Job Details */}
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                  Job Details
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Employee ID
+                      </label>
+                      <input
+                        type="text"
+                        name="employeeId"
+                        value={formData.employeeId || ''}
+                        readOnly
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Designation *
+                      </label>
+                      <input
+                        type="text"
+                        name="designation"
+                        value={formData.designation || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.designation ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="e.g., Senior Software Engineer"
+                      />
+                      {formErrors.designation && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.designation}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Department *
+                      </label>
+                      <select
+                        name="department"
+                        value={formData.department || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.department ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      >
+                        <option value="">Select Department</option>
+                        {availableDepartments.map(dept => (
+                          <option key={dept} value={dept}>{dept}</option>
+                        ))}
+                      </select>
+                      {formErrors.department && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.department}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Employment Type
+                      </label>
+                      <select
+                        name="employmentType"
+                        value={formData.employmentType || 'Permanent'}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="Permanent">Permanent</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Probation">Probation</option>
+                        <option value="Temporary">Temporary</option>
+                        <option value="Intern">Intern</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Date of Joining *
+                      </label>
+                      <input
+                        type="date"
+                        name="dateOfJoining"
+                        value={formData.dateOfJoining || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.dateOfJoining ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      />
+                      {formErrors.dateOfJoining && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.dateOfJoining}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Basic Salary (USD) *
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2 text-gray-500">$</span>
+                        <input
+                          type="number"
+                          name="basicSalary"
+                          value={formData.basicSalary || ''}
+                          onChange={handleFormChange}
+                          className={`w-full pl-7 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                            formErrors.basicSalary ? 'border-red-500' : 'border-gray-300'
+                          }`}
+                          placeholder="0.00"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                      {formErrors.basicSalary && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.basicSalary}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Allowances (USD)
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2 text-gray-500">$</span>
+                        <input
+                          type="number"
+                          name="allowances"
+                          value={formData.allowances || ''}
+                          onChange={handleFormChange}
+                          className="w-full pl-7 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="0.00"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reporting Manager
+                      </label>
+                      <input
+                        type="text"
+                        name="reportingManager"
+                        value={formData.reportingManager || ''}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: EPF/ETF Details */}
+            {currentStep === 4 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                  EPF & ETF Details
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        EPF Number *
+                      </label>
+                      <input
+                        type="text"
+                        name="epfNumber"
+                        value={formData.epfNumber || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.epfNumber ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="e.g., EPF123456789"
+                      />
+                      {formErrors.epfNumber && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.epfNumber}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        ETF Number *
+                      </label>
+                      <input
+                        type="text"
+                        name="etfNumber"
+                        value={formData.etfNumber || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.etfNumber ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="e.g., ETF987654321"
+                      />
+                      {formErrors.etfNumber && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.etfNumber}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        EPF Start Date
+                      </label>
+                      <input
+                        type="date"
+                        name="epfStartDate"
+                        value={formData.epfStartDate || ''}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Employee EPF Rate (%)
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            name="employeeEpfRate"
+                            value={formData.employeeEpfRate || '8'}
+                            onChange={handleFormChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                          />
+                          <span className="absolute right-3 top-2 text-gray-500">%</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Employer EPF Rate (%)
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            name="employerEpfRate"
+                            value={formData.employerEpfRate || '12'}
+                            onChange={handleFormChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                          />
+                          <span className="absolute right-3 top-2 text-gray-500">%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        ETF Rate (%)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          name="etfRate"
+                          value={formData.etfRate || '3'}
+                          onChange={handleFormChange}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                        />
+                        <span className="absolute right-3 top-2 text-gray-500">%</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        EPF Contribution Type
+                      </label>
+                      <select
+                        name="epfContributionType"
+                        value={formData.epfContributionType || 'employee'}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="employee">Employee Contribution</option>
+                        <option value="employer">Employer Contribution</option>
+                        <option value="both">Both</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 5: Bank Details */}
+            {currentStep === 5 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                  Bank Details
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Bank Name *
+                      </label>
+                      <select
+                        name="bankName"
+                        value={formData.bankName || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.bankName ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      >
+                        <option value="">Select Bank</option>
+                        <option value="Bank of America">Bank of America</option>
+                        <option value="Chase Bank">Chase Bank</option>
+                        <option value="Wells Fargo">Wells Fargo</option>
+                        <option value="Citibank">Citibank</option>
+                        <option value="HSBC">HSBC</option>
+                        <option value="Other">Other</option>
+                      </select>
+                      {formErrors.bankName && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.bankName}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Branch *
+                      </label>
+                      <input
+                        type="text"
+                        name="branch"
+                        value={formData.branch || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.branch ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="e.g., New York Main Branch"
+                      />
+                      {formErrors.branch && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.branch}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Account Number *
+                      </label>
+                      <input
+                        type="text"
+                        name="accountNumber"
+                        value={formData.accountNumber || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.accountNumber ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="e.g., 1234567890"
+                      />
+                      {formErrors.accountNumber && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.accountNumber}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Account Type *
+                      </label>
+                      <select
+                        name="accountType"
+                        value={formData.accountType || 'Savings'}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.accountType ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      >
+                        <option value="">Select Account Type</option>
+                        <option value="Savings">Savings</option>
+                        <option value="Current">Current</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Checking">Checking</option>
+                      </select>
+                      {formErrors.accountType && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.accountType}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Account Holder Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="accountHolderName"
+                        value={formData.accountHolderName || ''}
+                        onChange={handleFormChange}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                          formErrors.accountHolderName ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="As per bank records"
+                      />
+                      {formErrors.accountHolderName && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.accountHolderName}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Payment Method
+                      </label>
+                      <select
+                        name="paymentMethod"
+                        value={formData.paymentMethod || 'Bank Transfer'}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="Cash">Cash</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 6: Documents - New Step */}
+            {currentStep === 6 && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                  Employee Documents
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Employee Photo
+                      </label>
+                      <div className="mt-1 flex items-center">
+                        <div className="relative">
+                          <input
+                            type="file"
+                            name="employeePhoto"
+                            onChange={handleFileChange}
+                            accept="image/*"
+                            className="sr-only"
+                            id="employee-photo"
+                          />
+                          <label
+                            htmlFor="employee-photo"
+                            className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            Choose Photo
+                          </label>
+                        </div>
+                        <div className="ml-4">
+                          {formData.employeePhoto ? (
+                            <div className="flex items-center space-x-2">
+                              <img
+                                src={URL.createObjectURL(formData.employeePhoto)}
+                                alt="Employee"
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                              <span className="text-sm text-gray-600">
+                                {formData.employeePhoto.name}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-500">No photo selected</span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Upload a professional photo (JPG, PNG, max 5MB)
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        CV/Resume
+                      </label>
+                      <div className="mt-1 flex items-center">
+                        <div className="relative">
+                          <input
+                            type="file"
+                            name="cvDocument"
+                            onChange={handleFileChange}
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            className="sr-only"
+                            id="cv-document"
+                          />
+                          <label
+                            htmlFor="cv-document"
+                            className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            Choose File
+                          </label>
+                        </div>
+                        <div className="ml-4">
+                          {formData.cvDocument ? (
+                            <div className="flex items-center space-x-2">
+                              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              <div>
+                                <span className="text-sm text-gray-600 block">
+                                  {formData.cvDocument.name}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {(formData.cvDocument.size / 1024 / 1024).toFixed(2)} MB
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-500">No file selected</span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Upload CV/Resume (PDF, DOC, DOCX, JPG, PNG, max 10MB)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Additional Documents
+                      </label>
+                      <div className="mt-1">
+                        {formData.additionalDocuments && formData.additionalDocuments.length > 0 ? (
+                          <div className="space-y-2">
+                            {formData.additionalDocuments.map((file, index) => (
+                              <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                                <div className="flex items-center space-x-2">
+                                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
+                                  <span className="text-sm text-gray-600 truncate">
+                                    {file.name}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newFiles = [...formData.additionalDocuments];
+                                    newFiles.splice(index, 1);
+                                    handleFormChange({
+                                      target: {
+                                        name: 'additionalDocuments',
+                                        value: newFiles
+                                      }
+                                    });
+                                  }}
+                                  className="text-red-500 hover:text-red-700"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-500">No additional documents</span>
+                        )}
+                      </div>
+                      <div className="mt-2">
+                        <input
+                          type="file"
+                          id="additional-documents"
+                          className="sr-only"
+                          multiple
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files);
+                            const currentFiles = formData.additionalDocuments || [];
+                            handleFormChange({
+                              target: {
+                                name: 'additionalDocuments',
+                                value: [...currentFiles, ...files]
+                              }
+                            });
+                          }}
+                        />
+                        <label
+                          htmlFor="additional-documents"
+                          className="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                          </svg>
+                          Add More Files
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Add other supporting documents (max 5 files, 10MB each)
+                      </p>
+                    </div>
+
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h4 className="text-sm font-medium text-blue-900 mb-2">Document Requirements</h4>
+                      <ul className="text-xs text-blue-700 space-y-1">
+                        <li>• Photo should be recent and professional</li>
+                        <li>• CV should include work history and qualifications</li>
+                        <li>• All documents should be clear and readable</li>
+                        <li>• Maximum file size: 10MB per file</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between pt-6 mt-8 border-t border-gray-200">
+              <div>
+                {currentStep > 1 && (
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Previous
+                  </button>
+                )}
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleCloseAddModal}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                
+                {currentStep < 6 ? ( // Changed from 5 to 6
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  >
+                    Next Step
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Add Employee
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Step Indicator */}
+            <div className="mt-4 text-center text-sm text-gray-500">
+              Step {currentStep} of 6 {/* Changed from 5 to 6 */}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// Employee Card Component
+const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete }) => {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="flex items-start gap-4">
+          {employee.employeePhoto ? (
+            <img
+              src={employee.employeePhoto}
+              alt={employee.name}
+              className="w-14 h-14 rounded-full border-2 border-white shadow-sm object-cover"
+            />
+          ) : (
+            <img
+              src={employee.avatar}
+              alt={employee.name}
+              className="w-14 h-14 rounded-full border-2 border-white shadow-sm"
+            />
+          )}
+          <div>
+            <h3 className="font-semibold text-gray-900">{employee.name}</h3>
+            <p className="text-sm text-gray-600">{employee.position}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">
+                {employee.department}
+              </span>
+              <span className={`text-xs px-2 py-1 rounded ${
+                employee.status === 'active' 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-yellow-100 text-yellow-800'
+              }`}>
+                {employee.status}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={onView}
+            className="text-blue-600 hover:text-blue-800"
+            title="View Details"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
+          <button
+            onClick={onEdit}
+            className="text-green-600 hover:text-green-800"
+            title="Edit"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+          <button
+            onClick={onDelete}
+            className="text-red-600 hover:text-red-800"
+            title="Delete"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <div className="mt-4 space-y-3">
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span className="truncate">{employee.email}</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Joined {new Date(employee.hireDate).toLocaleDateString()}</span>
+        </div>
+      </div>
+
+      {/* Skills */}
+      <div className="mt-4">
+        <div className="flex flex-wrap gap-2">
+          {employee.skills.slice(0, 3).map((skill, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded"
+            >
+              {skill}
+            </span>
+          ))}
+          {employee.skills.length > 3 && (
+            <span className="px-2 py-1 text-xs font-medium text-gray-500">
+              +{employee.skills.length - 3} more
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
 const Employees = () => {
-  // Mock employee data
+  // Mock employee data with enhanced structure
   const initialEmployees = [
     {
       id: 1,
@@ -12,12 +1161,59 @@ const Employees = () => {
       email: 'john.smith@company.com',
       phone: '+1 (555) 123-4567',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
+      employeePhoto: null, // Added field
+      cvDocument: null, // Added field
+      additionalDocuments: [], // Added field
       status: 'active',
       hireDate: '2020-03-15',
       salary: '$95,000',
       skills: ['React', 'Node.js', 'TypeScript', 'AWS'],
       projects: 12,
-      performance: 4.8
+      performance: 4.8,
+      // Enhanced fields
+      personalInfo: {
+        firstName: 'John',
+        lastName: 'Smith',
+        dateOfBirth: '1985-05-15',
+        gender: 'Male',
+        nicNumber: '851234567V',
+        nationality: 'American',
+        maritalStatus: 'Married',
+        address: '123 Main St, New York, NY'
+      },
+      qualifications: {
+        highestQualification: "Master's Degree",
+        university: 'MIT',
+        yearOfGraduation: '2010',
+        degree: 'Computer Science',
+        professionalQualifications: 'AWS Certified'
+      },
+      jobDetails: {
+        employeeId: 'EMP20001',
+        designation: 'Senior Developer',
+        employmentType: 'Permanent',
+        reportingManager: 'Jane Doe',
+        workLocation: 'New York Office',
+        basicSalary: 85000,
+        allowances: 10000,
+        grossSalary: 95000
+      },
+      epfEtfDetails: {
+        epfNumber: 'EPF123456789',
+        etfNumber: 'ETF987654321',
+        epfStartDate: '2020-03-15',
+        employeeEpfRate: 8,
+        employerEpfRate: 12,
+        etfRate: 3
+      },
+      bankDetails: {
+        bankName: 'Bank of America',
+        branch: 'New York Main',
+        accountNumber: '1234567890',
+        accountType: 'Savings',
+        accountHolderName: 'John Smith',
+        paymentMethod: 'Bank Transfer'
+      }
     },
     {
       id: 2,
@@ -27,102 +1223,25 @@ const Employees = () => {
       email: 'sarah.j@company.com',
       phone: '+1 (555) 234-5678',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
+      employeePhoto: null,
+      cvDocument: null,
+      additionalDocuments: [],
       status: 'active',
       hireDate: '2019-07-22',
       salary: '$110,000',
       skills: ['Product Strategy', 'Agile', 'User Research'],
       projects: 8,
-      performance: 4.9
-    },
-    {
-      id: 3,
-      name: 'Mike Chen',
-      position: 'UX Designer',
-      department: 'Design',
-      email: 'mike.chen@company.com',
-      phone: '+1 (555) 345-6789',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
-      status: 'on-leave',
-      hireDate: '2021-05-10',
-      salary: '$85,000',
-      skills: ['Figma', 'User Testing', 'Prototyping'],
-      projects: 15,
-      performance: 4.7
-    },
-    {
-      id: 4,
-      name: 'Emma Wilson',
-      position: 'Marketing Lead',
-      department: 'Marketing',
-      email: 'emma.w@company.com',
-      phone: '+1 (555) 456-7890',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
-      status: 'active',
-      hireDate: '2022-01-30',
-      salary: '$90,000',
-      skills: ['Digital Marketing', 'SEO', 'Content Strategy'],
-      projects: 7,
-      performance: 4.6
-    },
-    {
-      id: 5,
-      name: 'David Brown',
-      position: 'DevOps Engineer',
-      department: 'Engineering',
-      email: 'david.b@company.com',
-      phone: '+1 (555) 567-8901',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=David',
-      status: 'active',
-      hireDate: '2020-11-05',
-      salary: '$105,000',
-      skills: ['AWS', 'Docker', 'Kubernetes', 'CI/CD'],
-      projects: 10,
-      performance: 4.8
-    },
-    {
-      id: 6,
-      name: 'Lisa Taylor',
-      position: 'HR Manager',
-      department: 'Human Resources',
-      email: 'lisa.t@company.com',
-      phone: '+1 (555) 678-9012',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
-      status: 'active',
-      hireDate: '2018-09-12',
-      salary: '$88,000',
-      skills: ['Recruitment', 'Employee Relations', 'Training'],
-      projects: 9,
-      performance: 4.9
-    },
-    {
-      id: 7,
-      name: 'Robert Kim',
-      position: 'Frontend Developer',
-      department: 'Engineering',
-      email: 'robert.k@company.com',
-      phone: '+1 (555) 789-0123',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
-      status: 'active',
-      hireDate: '2023-02-15',
-      salary: '$80,000',
-      skills: ['React', 'Next.js', 'Tailwind', 'JavaScript'],
-      projects: 6,
-      performance: 4.5
-    },
-    {
-      id: 8,
-      name: 'Maria Garcia',
-      position: 'Sales Executive',
-      department: 'Sales',
-      email: 'maria.g@company.com',
-      phone: '+1 (555) 890-1234',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Maria',
-      status: 'active',
-      hireDate: '2021-08-20',
-      salary: '$75,000',
-      skills: ['Sales', 'CRM', 'Negotiation'],
-      projects: 11,
-      performance: 4.7
+      performance: 4.9,
+      personalInfo: {
+        firstName: 'Sarah',
+        lastName: 'Johnson',
+        dateOfBirth: '1988-08-22',
+        gender: 'Female',
+        nicNumber: '882345678V',
+        nationality: 'American',
+        maritalStatus: 'Single',
+        address: '456 Oak Ave, San Francisco, CA'
+      }
     }
   ];
 
@@ -130,187 +1249,85 @@ const Employees = () => {
   const [employees, setEmployees] = useState(initialEmployees);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [sortBy, setSortBy] = useState('name');
   
-  // Form state for editing employee
+  // Multi-step form state - Updated to include document fields
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: '',
-    position: '',
-    department: 'Engineering',
-    email: '',
-    phone: '',
-    status: 'active',
-    hireDate: new Date().toISOString().split('T')[0],
-    salary: '',
-    skills: '',
-    performance: '4.0',
-    projects: '0'
-  });
-
-  // New registration form states
-  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
-  const [registrationFormData, setRegistrationFormData] = useState({
-    // REGISTER HERE
-    email: '',
-    password: '',
-    confirmPassword: '',
-    securityQuestion1: '',
-    securityAnswer1: '',
-    securityQuestion2: '',
-    securityAnswer2: '',
-    address: '',
-    
-    // YOUR DETAILS
+    // Step 1: Personal Information
     firstName: '',
     lastName: '',
-    relocationRequired: 'NO',
-    country: '',
-    phoneNumber: '',
     dateOfBirth: '',
+    gender: '',
+    nicNumber: '',
+    passportNumber: '',
+    nationality: 'Sri Lankan',
+    maritalStatus: '',
+    email: '',
+    mobile: '',
+    homePhone: '',
+    permanentAddress: '',
+    currentAddress: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    emergencyContactRelationship: '',
     
-    // QUALIFICATIONS
-    university: '',
+    // Step 2: Qualification Details
     highestQualification: '',
-    gradePoints: '',
-    resumeFile: null,
+    university: '',
+    yearOfGraduation: '',
+    degree: '',
+    professionalQualifications: '',
+    technicalSkills: '',
+    languages: '',
+    certifications: '',
     
-    // NEW FIELDS: EPF/ETF
-    epfStatus: 'active',
-    etfStatus: 'active',
+    // Step 3: Job Details
+    employeeId: '',
+    designation: '',
+    department: 'Engineering',
+    employmentType: 'Permanent',
+    dateOfJoining: '',
+    reportingManager: '',
+    workLocation: '',
+    workingHours: '09:00 - 17:00',
+    probationPeriod: '6',
+    noticePeriod: '1',
+    basicSalary: '',
+    allowances: '',
+    grossSalary: '',
     
-    // JOB DETAILS
-    jobCategory: '',
-    jobDesignation: '',
-    employeeType: 'full-time',
+    // Step 4: EPF/ETF Details
+    epfNumber: '',
+    etfNumber: '',
+    epfStartDate: '',
+    employeeEpfRate: '8',
+    employerEpfRate: '12',
+    etfRate: '3',
+    epfContributionType: 'employee',
+    epfNomineeName: '',
+    epfNomineeRelationship: '',
     
-    // BANK DETAILS
+    // Step 5: Bank Details
     bankName: '',
-    accountNumber: '',
-    accountType: 'savings',
     branch: '',
-    bankCode: ''
+    accountNumber: '',
+    accountType: 'Savings',
+    accountHolderName: '',
+    bankCode: '',
+    paymentMethod: 'Bank Transfer',
+    
+    // Step 6: Documents - New fields
+    employeePhoto: null,
+    cvDocument: null,
+    additionalDocuments: [],
   });
 
-  // Security questions options
-  const securityQuestions = [
-    'What was your first pet\'s name?',
-    'What is your mother\'s maiden name?',
-    'What city were you born in?',
-    'What was your first car?',
-    'What is your favorite book?',
-    'What is your childhood nickname?'
-  ];
-
-  // Countries list
-  const countries = [
-    'United States',
-    'Canada',
-    'United Kingdom',
-    'Australia',
-    'Germany',
-    'France',
-    'India',
-    'Japan',
-    'China',
-    'Brazil',
-    'Sri Lanka'
-  ];
-
-  // Universities list
-  const universities = [
-    'Harvard University',
-    'Stanford University',
-    'MIT',
-    'University of Cambridge',
-    'University of Oxford',
-    'University of Toronto',
-    'National University of Singapore',
-    'University of Melbourne',
-    'University of Tokyo',
-    'University of Colombo',
-    'University of Moratuwa',
-    'Other'
-  ];
-
-  // Qualifications list
-  const qualifications = [
-    'High School',
-    'Associate Degree',
-    'Bachelor\'s Degree',
-    'Master\'s Degree',
-    'Doctorate',
-    'Professional Certificate',
-    'Diploma'
-  ];
-
-  // Job Categories
-  const jobCategories = [
-    'Information Technology',
-    'Engineering',
-    'Marketing',
-    'Sales',
-    'Human Resources',
-    'Finance',
-    'Operations',
-    'Customer Service',
-    'Research & Development',
-    'Administration'
-  ];
-
-  // Job Designations
-  const jobDesignations = [
-    'Software Engineer',
-    'Senior Software Engineer',
-    'Team Lead',
-    'Project Manager',
-    'Product Manager',
-    'UX Designer',
-    'DevOps Engineer',
-    'Data Scientist',
-    'Business Analyst',
-    'Marketing Executive',
-    'Sales Executive',
-    'HR Executive',
-    'Finance Manager',
-    'Operations Manager'
-  ];
-
-  // Employee Types
-  const employeeTypes = [
-    'full-time',
-    'part-time',
-    'contract',
-    'temporary',
-    'intern',
-    'freelance'
-  ];
-
-  // Bank Names
-  const bankNames = [
-    'Bank of America',
-    'Chase Bank',
-    'Wells Fargo',
-    'Citibank',
-    'HSBC',
-    'Standard Chartered',
-    'Commercial Bank',
-    'People\'s Bank',
-    'Hatton National Bank',
-    'Sampath Bank',
-    'Other'
-  ];
-
-  // Account Types
-  const accountTypes = [
-    'savings',
-    'checking',
-    'current',
-    'salary',
-    'fixed deposit'
-  ];
+  const [formErrors, setFormErrors] = useState({});
 
   // Get unique departments for filters
   const departments = ['all', ...new Set(employees.map(emp => emp.department))];
@@ -363,314 +1380,345 @@ const Employees = () => {
     avgPerformance: (employees.reduce((acc, emp) => acc + emp.performance, 0) / employees.length).toFixed(1)
   };
 
-  // Event Handlers for editing employee
-  const handleEditEmployee = (e) => {
-    e.preventDefault();
-    
-    // Process skills string into array
-    const skillsArray = formData.skills
-      .split(',')
-      .map(skill => skill.trim())
-      .filter(skill => skill.length > 0);
-
-    const updatedEmployee = {
-      ...selectedEmployee,
-      name: formData.name,
-      position: formData.position,
-      department: formData.department,
-      email: formData.email,
-      phone: formData.phone,
-      status: formData.status,
-      hireDate: formData.hireDate,
-      salary: formData.salary ? `$${parseInt(formData.salary).toLocaleString()}` : '$0',
-      skills: skillsArray,
-      projects: parseInt(formData.projects) || 0,
-      performance: parseFloat(formData.performance) || 4.0
-    };
-
-    setEmployees(employees.map(emp => 
-      emp.id === selectedEmployee.id ? updatedEmployee : emp
-    ));
-    
-    setSelectedEmployee(updatedEmployee);
-    resetForm();
-    setIsEditModalOpen(false);
+  // Generate employee ID
+  const generateEmployeeId = () => {
+    const prefix = 'EMP';
+    const year = new Date().getFullYear().toString().slice(-2);
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    return `${prefix}${year}${randomNum}`;
   };
 
-  const handleDeleteEmployee = (id) => {
+  // Initialize form when modal opens
+  React.useEffect(() => {
+    if (isAddModalOpen) {
+      setFormData(prev => ({
+        ...prev,
+        employeeId: generateEmployeeId(),
+        dateOfJoining: new Date().toISOString().split('T')[0]
+      }));
+    }
+  }, [isAddModalOpen]);
+
+  // Use useCallback for form handlers to prevent unnecessary re-renders
+  const handleFormChange = useCallback((e) => {
+    const { name, value, type, checked } = e.target;
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+    
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  }, [formErrors]);
+
+  // Handle file uploads separately
+  const handleFileChange = useCallback((e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+    
+    if (file) {
+      // Check file size
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+        return;
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        [name]: file
+      }));
+    }
+  }, []);
+
+  const validateStep = (step) => {
+    const newErrors = {};
+    
+    if (step === 1) {
+      if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+      if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+      if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+      if (!formData.gender) newErrors.gender = 'Gender is required';
+      if (!formData.nicNumber.trim()) newErrors.nicNumber = 'NIC number is required';
+      if (!formData.email.trim()) newErrors.email = 'Email is required';
+      if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Invalid email format';
+      if (!formData.mobile.trim()) newErrors.mobile = 'Mobile number is required';
+      if (!formData.permanentAddress.trim()) newErrors.permanentAddress = 'Permanent address is required';
+    }
+    
+    if (step === 2) {
+      if (!formData.highestQualification) newErrors.highestQualification = 'Highest qualification is required';
+    }
+    
+    if (step === 3) {
+      if (!formData.designation.trim()) newErrors.designation = 'Designation is required';
+      if (!formData.department) newErrors.department = 'Department is required';
+      if (!formData.dateOfJoining) newErrors.dateOfJoining = 'Date of joining is required';
+      if (!formData.basicSalary || parseFloat(formData.basicSalary) <= 0) 
+        newErrors.basicSalary = 'Valid basic salary is required';
+    }
+    
+    if (step === 4) {
+      if (!formData.epfNumber.trim()) newErrors.epfNumber = 'EPF number is required';
+      if (!formData.etfNumber.trim()) newErrors.etfNumber = 'ETF number is required';
+    }
+    
+    if (step === 5) {
+      if (!formData.bankName) newErrors.bankName = 'Bank name is required';
+      if (!formData.branch.trim()) newErrors.branch = 'Branch is required';
+      if (!formData.accountNumber.trim()) newErrors.accountNumber = 'Account number is required';
+      if (!formData.accountType) newErrors.accountType = 'Account type is required';
+      if (!formData.accountHolderName.trim()) newErrors.accountHolderName = 'Account holder name is required';
+    }
+    
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const nextStep = useCallback(() => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => Math.min(prev + 1, 6)); // Changed from 5 to 6
+    }
+  }, [currentStep, validateStep]);
+
+  const prevStep = useCallback(() => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  }, []);
+
+  const handleAddEmployee = useCallback((e) => {
+    e.preventDefault();
+    
+    if (validateStep(currentStep)) {
+      // Calculate gross salary if not provided
+      const allowances = parseFloat(formData.allowances) || 0;
+      const basicSalary = parseFloat(formData.basicSalary) || 0;
+      const grossSalary = formData.grossSalary || (basicSalary + allowances).toString();
+      
+      // Convert employee photo to base64 if exists
+      const convertFileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+          if (!file) {
+            resolve(null);
+            return;
+          }
+          
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      };
+
+      const createEmployee = async () => {
+        const employeePhotoBase64 = await convertFileToBase64(formData.employeePhoto);
+        const cvDocumentBase64 = await convertFileToBase64(formData.cvDocument);
+        
+        // Convert additional documents to base64
+        const additionalDocsBase64 = [];
+        if (formData.additionalDocuments && formData.additionalDocuments.length > 0) {
+          for (const doc of formData.additionalDocuments) {
+            const base64 = await convertFileToBase64(doc);
+            additionalDocsBase64.push({
+              name: doc.name,
+              type: doc.type,
+              size: doc.size,
+              data: base64
+            });
+          }
+        }
+
+        const finalData = {
+          ...formData,
+          grossSalary,
+        };
+
+        // Create new employee object
+        const newId = Math.max(...employees.map(emp => emp.id)) + 1;
+        const skills = finalData.technicalSkills 
+          ? finalData.technicalSkills.split(',').map(skill => skill.trim())
+          : [];
+        
+        const newEmployee = {
+          id: newId,
+          name: `${finalData.firstName} ${finalData.lastName}`,
+          position: finalData.designation,
+          department: finalData.department,
+          email: finalData.email,
+          phone: finalData.mobile,
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${finalData.firstName}`,
+          employeePhoto: employeePhotoBase64,
+          cvDocument: cvDocumentBase64 ? {
+            data: cvDocumentBase64,
+            name: formData.cvDocument?.name || 'cv.pdf',
+            type: formData.cvDocument?.type || 'application/pdf'
+          } : null,
+          additionalDocuments: additionalDocsBase64,
+          status: 'active',
+          hireDate: finalData.dateOfJoining,
+          salary: `$${parseFloat(finalData.basicSalary || 0).toLocaleString()}`,
+          skills: skills,
+          projects: 0,
+          performance: 4.0,
+          // Enhanced fields
+          personalInfo: {
+            firstName: finalData.firstName,
+            lastName: finalData.lastName,
+            dateOfBirth: finalData.dateOfBirth,
+            gender: finalData.gender,
+            nicNumber: finalData.nicNumber,
+            nationality: finalData.nationality,
+            maritalStatus: finalData.maritalStatus,
+            address: finalData.permanentAddress
+          },
+          qualifications: {
+            highestQualification: finalData.highestQualification,
+            university: finalData.university,
+            yearOfGraduation: finalData.yearOfGraduation,
+            degree: finalData.degree,
+            professionalQualifications: finalData.professionalQualifications
+          },
+          jobDetails: {
+            employeeId: finalData.employeeId,
+            designation: finalData.designation,
+            employmentType: finalData.employmentType,
+            reportingManager: finalData.reportingManager,
+            workLocation: finalData.workLocation,
+            basicSalary: finalData.basicSalary,
+            allowances: finalData.allowances,
+            grossSalary: finalData.grossSalary
+          },
+          epfEtfDetails: {
+            epfNumber: finalData.epfNumber,
+            etfNumber: finalData.etfNumber,
+            epfStartDate: finalData.epfStartDate,
+            employeeEpfRate: finalData.employeeEpfRate,
+            employerEpfRate: finalData.employerEpfRate,
+            etfRate: finalData.etfRate
+          },
+          bankDetails: {
+            bankName: finalData.bankName,
+            branch: finalData.branch,
+            accountNumber: finalData.accountNumber,
+            accountType: finalData.accountType,
+            accountHolderName: finalData.accountHolderName,
+            paymentMethod: finalData.paymentMethod
+          }
+        };
+
+        setEmployees([...employees, newEmployee]);
+        resetForm();
+        setIsAddModalOpen(false);
+        setCurrentStep(1);
+        
+        alert('Employee added successfully!');
+      };
+
+      createEmployee().catch(error => {
+        console.error('Error creating employee:', error);
+        alert('Error adding employee. Please try again.');
+      });
+    }
+  }, [currentStep, formData, employees, validateStep]);
+
+  const resetForm = useCallback(() => {
+    setFormData({
+      firstName: '',
+      lastName: '',
+      dateOfBirth: '',
+      gender: '',
+      nicNumber: '',
+      passportNumber: '',
+      nationality: 'Sri Lankan',
+      maritalStatus: '',
+      email: '',
+      mobile: '',
+      homePhone: '',
+      permanentAddress: '',
+      currentAddress: '',
+      emergencyContactName: '',
+      emergencyContactPhone: '',
+      emergencyContactRelationship: '',
+      highestQualification: '',
+      university: '',
+      yearOfGraduation: '',
+      degree: '',
+      professionalQualifications: '',
+      technicalSkills: '',
+      languages: '',
+      certifications: '',
+      employeeId: generateEmployeeId(),
+      designation: '',
+      department: 'Engineering',
+      employmentType: 'Permanent',
+      dateOfJoining: new Date().toISOString().split('T')[0],
+      reportingManager: '',
+      workLocation: '',
+      workingHours: '09:00 - 17:00',
+      probationPeriod: '6',
+      noticePeriod: '1',
+      basicSalary: '',
+      allowances: '',
+      grossSalary: '',
+      epfNumber: '',
+      etfNumber: '',
+      epfStartDate: '',
+      employeeEpfRate: '8',
+      employerEpfRate: '12',
+      etfRate: '3',
+      epfContributionType: 'employee',
+      epfNomineeName: '',
+      epfNomineeRelationship: '',
+      bankName: '',
+      branch: '',
+      accountNumber: '',
+      accountType: 'Savings',
+      accountHolderName: '',
+      bankCode: '',
+      paymentMethod: 'Bank Transfer',
+      employeePhoto: null,
+      cvDocument: null,
+      additionalDocuments: [],
+    });
+    setFormErrors({});
+  }, []);
+
+  const handleCloseAddModal = useCallback(() => {
+    resetForm();
+    setCurrentStep(1);
+    setIsAddModalOpen(false);
+  }, [resetForm]);
+
+  const handleDeleteEmployee = useCallback((id) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       setEmployees(employees.filter(emp => emp.id !== id));
       if (selectedEmployee && selectedEmployee.id === id) {
         setSelectedEmployee(null);
       }
     }
-  };
+  }, [employees, selectedEmployee]);
 
-  const handleEditClick = (employee) => {
+  const handleEditClick = useCallback((employee) => {
     setSelectedEmployee(employee);
-    setFormData({
-      name: employee.name,
-      position: employee.position,
-      department: employee.department,
-      email: employee.email,
-      phone: employee.phone,
-      status: employee.status,
-      hireDate: employee.hireDate,
-      salary: employee.salary.replace(/[$,]/g, ''),
-      skills: employee.skills.join(', '),
-      performance: employee.performance.toString(),
-      projects: employee.projects.toString()
-    });
     setIsEditModalOpen(true);
-  };
+  }, []);
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      position: '',
-      department: 'Engineering',
-      email: '',
-      phone: '',
-      status: 'active',
-      hireDate: new Date().toISOString().split('T')[0],
-      salary: '',
-      skills: '',
-      performance: '4.0',
-      projects: '0'
-    });
-  };
+  const handleAddClick = useCallback(() => {
+    setIsAddModalOpen(true);
+  }, []);
 
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Event Handlers for registration form
-  const handleRegistrationFormChange = (e) => {
-    const { name, value, type, files, checked } = e.target;
-    
-    if (type === 'file') {
-      setRegistrationFormData(prev => ({
-        ...prev,
-        [name]: files[0]
-      }));
-    } else if (type === 'checkbox') {
-      setRegistrationFormData(prev => ({
-        ...prev,
-        [name]: checked
-      }));
-    } else {
-      setRegistrationFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleRegistrationSubmit = (e) => {
-    e.preventDefault();
-    
-    // Validation
-    if (registrationFormData.password !== registrationFormData.confirmPassword) {
-      alert('Passwords do not match!');
-      return;
-    }
-
-    if (!registrationFormData.resumeFile) {
-      alert('Please upload a resume file');
-      return;
-    }
-
-    // Process the form data
-    console.log('Registration Data:', registrationFormData);
-    
-    // Create a new employee from registration data
-    const maxId = Math.max(...employees.map(emp => emp.id));
-    const newEmployee = {
-      id: maxId + 1,
-      name: `${registrationFormData.firstName} ${registrationFormData.lastName}`,
-      position: registrationFormData.jobDesignation || 'New Employee',
-      department: registrationFormData.jobCategory || 'To be Assigned',
-      email: registrationFormData.email,
-      phone: registrationFormData.phoneNumber,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${registrationFormData.firstName}`,
-      status: 'active',
-      hireDate: new Date().toISOString().split('T')[0],
-      salary: '$50,000',
-      skills: [registrationFormData.highestQualification],
-      projects: 0,
-      performance: 4.0,
-      // Additional fields
-      epfStatus: registrationFormData.epfStatus,
-      etfStatus: registrationFormData.etfStatus,
-      employeeType: registrationFormData.employeeType,
-      bankDetails: {
-        bankName: registrationFormData.bankName,
-        accountNumber: registrationFormData.accountNumber,
-        accountType: registrationFormData.accountType,
-        branch: registrationFormData.branch
-      }
-    };
-
-    setEmployees([...employees, newEmployee]);
-    
-    // Reset form and close modal
-    resetRegistrationForm();
-    setIsRegistrationModalOpen(false);
-    alert('Employee registered successfully!');
-  };
-
-  const resetRegistrationForm = () => {
-    setRegistrationFormData({
-      // REGISTER HERE
-      email: '',
-      password: '',
-      confirmPassword: '',
-      securityQuestion1: '',
-      securityAnswer1: '',
-      securityQuestion2: '',
-      securityAnswer2: '',
-      address: '',
-      
-      // YOUR DETAILS
-      firstName: '',
-      lastName: '',
-      relocationRequired: 'NO',
-      country: '',
-      phoneNumber: '',
-      dateOfBirth: '',
-      
-      // QUALIFICATIONS
-      university: '',
-      highestQualification: '',
-      gradePoints: '',
-      resumeFile: null,
-      
-      // NEW FIELDS: EPF/ETF
-      epfStatus: 'active',
-      etfStatus: 'active',
-      
-      // JOB DETAILS
-      jobCategory: '',
-      jobDesignation: '',
-      employeeType: 'full-time',
-      
-      // BANK DETAILS
-      bankName: '',
-      accountNumber: '',
-      accountType: 'savings',
-      branch: '',
-      bankCode: ''
-    });
-  };
-
-  // Employee Card Component
-  const EmployeeCard = ({ employee, onView, onEdit, onDelete }) => {
-    return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4">
-            <img
-              src={employee.avatar}
-              alt={employee.name}
-              className="w-14 h-14 rounded-full border-2 border-white shadow-sm"
-            />
-            <div>
-              <h3 className="font-semibold text-gray-900">{employee.name}</h3>
-              <p className="text-sm text-gray-600">{employee.position}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">
-                  {employee.department}
-                </span>
-                <span className={`text-xs px-2 py-1 rounded ${
-                  employee.status === 'active' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {employee.status}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={onView}
-              className="text-blue-600 hover:text-blue-800"
-              title="View Details"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            </button>
-            <button
-              onClick={onEdit}
-              className="text-green-600 hover:text-green-800"
-              title="Edit"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-            <button
-              onClick={onDelete}
-              className="text-red-600 hover:text-red-800"
-              title="Delete"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        
-        <div className="mt-4 space-y-3">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span className="truncate">{employee.email}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Joined {new Date(employee.hireDate).toLocaleDateString()}</span>
-          </div>
-        </div>
-
-        {/* Skills */}
-        <div className="mt-4">
-          <div className="flex flex-wrap gap-2">
-            {employee.skills.slice(0, 3).map((skill, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded"
-              >
-                {skill}
-              </span>
-            ))}
-            {employee.skills.length > 3 && (
-              <span className="px-2 py-1 text-xs font-medium text-gray-500">
-                +{employee.skills.length - 3} more
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Employee Detail Modal Component
-  const EmployeeModal = ({ employee, onClose, onEdit, onDelete }) => {
+  // Employee Detail Modal Component - Updated to show documents
+  const EmployeeModal = React.memo(({ employee, onClose, onEdit, onDelete }) => {
     if (!employee) return null;
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             {/* Header */}
             <div className="flex justify-between items-start mb-6">
@@ -691,7 +1739,38 @@ const Employees = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Left Column */}
               <div className="md:col-span-2 space-y-6">
-                {/* Basic Info */}
+                {/* Personal Information */}
+                {employee.personalInfo && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 mb-3">Personal Information</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-1">Date of Birth</h4>
+                        <p className="font-medium text-gray-900">
+                          {new Date(employee.personalInfo.dateOfBirth).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-1">Gender</h4>
+                        <p className="font-medium text-gray-900">{employee.personalInfo.gender}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-1">NIC Number</h4>
+                        <p className="font-medium text-gray-900">{employee.personalInfo.nicNumber}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-1">Nationality</h4>
+                        <p className="font-medium text-gray-900">{employee.personalInfo.nationality}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <h4 className="text-sm font-medium text-gray-500 mb-1">Address</h4>
+                      <p className="font-medium text-gray-900">{employee.personalInfo.address}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Contact Information */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="font-medium text-gray-900 mb-3">Contact Information</h3>
                   <div className="space-y-2">
@@ -738,6 +1817,31 @@ const Employees = () => {
                   </div>
                 </div>
 
+                {/* Job Details */}
+                {employee.jobDetails && (
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 mb-3">Job Details</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-1">Employee ID</h4>
+                        <p className="font-medium text-gray-900">{employee.jobDetails.employeeId}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-1">Employment Type</h4>
+                        <p className="font-medium text-gray-900">{employee.jobDetails.employmentType}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-1">Work Location</h4>
+                        <p className="font-medium text-gray-900">{employee.jobDetails.workLocation}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 mb-1">Reporting Manager</h4>
+                        <p className="font-medium text-gray-900">{employee.jobDetails.reportingManager}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Skills */}
                 <div>
                   <h3 className="font-medium text-gray-900 mb-3">Skills</h3>
@@ -758,11 +1862,19 @@ const Employees = () => {
               <div className="space-y-6">
                 {/* Avatar */}
                 <div className="flex flex-col items-center">
-                  <img
-                    src={employee.avatar}
-                    alt={employee.name}
-                    className="w-32 h-32 rounded-full border-4 border-white shadow-lg"
-                  />
+                  {employee.employeePhoto ? (
+                    <img
+                      src={employee.employeePhoto}
+                      alt={employee.name}
+                      className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={employee.avatar}
+                      alt={employee.name}
+                      className="w-32 h-32 rounded-full border-4 border-white shadow-lg"
+                    />
+                  )}
                   <div className="mt-4 text-center">
                     <div className="text-lg font-semibold text-gray-900">{employee.name}</div>
                     <div className="text-gray-600">{employee.position}</div>
@@ -781,11 +1893,112 @@ const Employees = () => {
                   </div>
                 </div>
 
+                {/* Bank Details */}
+                {employee.bankDetails && (
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 mb-2">Bank Details</h3>
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <span className="text-gray-500">Bank:</span>
+                        <span className="font-medium text-gray-900 ml-2">{employee.bankDetails.bankName}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Account:</span>
+                        <span className="font-medium text-gray-900 ml-2">****{employee.bankDetails.accountNumber?.slice(-4)}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Type:</span>
+                        <span className="font-medium text-gray-900 ml-2">{employee.bankDetails.accountType}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* EPF/ETF Details */}
+                {employee.epfEtfDetails && (
+                  <div className="bg-yellow-50 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 mb-2">EPF/ETF Details</h3>
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <span className="text-gray-500">EPF No:</span>
+                        <span className="font-medium text-gray-900 ml-2">{employee.epfEtfDetails.epfNumber}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">ETF No:</span>
+                        <span className="font-medium text-gray-900 ml-2">{employee.epfEtfDetails.etfNumber}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Documents Section */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-medium text-gray-900 mb-3">Documents</h3>
+                  <div className="space-y-3">
+                    {employee.cvDocument && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="text-sm">CV/Resume</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            // Create download link for CV
+                            const link = document.createElement('a');
+                            link.href = employee.cvDocument.data;
+                            link.download = employee.cvDocument.name;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          Download
+                        </button>
+                      </div>
+                    )}
+                    
+                    {employee.additionalDocuments && employee.additionalDocuments.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Additional Documents</h4>
+                        <div className="space-y-2">
+                          {employee.additionalDocuments.map((doc, index) => (
+                            <div key={index} className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span className="text-xs truncate">{doc.name}</span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  // Create download link for additional document
+                                  const link = document.createElement('a');
+                                  link.href = doc.data;
+                                  link.download = doc.name;
+                                  document.body.appendChild(link);
+                                  link.click();
+                                  document.body.removeChild(link);
+                                }}
+                                className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                              >
+                                View
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Actions */}
                 <div className="space-y-3">
                   <button
                     onClick={() => {
-                      onEdit();
+                      // Handle edit (to be implemented)
                       onClose();
                     }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-colors"
@@ -810,877 +2023,7 @@ const Employees = () => {
         </div>
       </div>
     );
-  };
-
-  // Employee Form Modal Component (Used for editing only)
-  const EmployeeFormModal = ({ isOpen, onClose, onSubmit, title }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-6">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-                <p className="text-gray-600 mt-1">Fill in the employee details below</p>
-              </div>
-              <button
-                onClick={() => {
-                  resetForm();
-                  onClose();
-                }}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={onSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {/* Personal Information */}
-                <div className="space-y-4">
-                  <h3 className="font-medium text-gray-900">Personal Information</h3>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter full name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Position *
-                    </label>
-                    <input
-                      type="text"
-                      name="position"
-                      value={formData.position}
-                      onChange={handleFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter position"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Department *
-                    </label>
-                    <select
-                      name="department"
-                      value={formData.department}
-                      onChange={handleFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      {availableDepartments.map(dept => (
-                        <option key={dept} value={dept}>{dept}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Status *
-                    </label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="active">Active</option>
-                      <option value="on-leave">On Leave</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="space-y-4">
-                  <h3 className="font-medium text-gray-900">Contact Information</h3>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter email address"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleFormChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter phone number"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Hire Date *
-                    </label>
-                    <input
-                      type="date"
-                      name="hireDate"
-                      value={formData.hireDate}
-                      onChange={handleFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Salary (USD)
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2 text-gray-500">$</span>
-                      <input
-                        type="number"
-                        name="salary"
-                        value={formData.salary}
-                        onChange={handleFormChange}
-                        className="w-full pl-7 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter annual salary"
-                        min="0"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Skills & Performance */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Skills (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="skills"
-                    value={formData.skills}
-                    onChange={handleFormChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="e.g., React, Node.js, TypeScript"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Separate skills with commas</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Performance (0-5)
-                    </label>
-                    <input
-                      type="number"
-                      name="performance"
-                      value={formData.performance}
-                      onChange={handleFormChange}
-                      min="0"
-                      max="5"
-                      step="0.1"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Projects Completed
-                    </label>
-                    <input
-                      type="number"
-                      name="projects"
-                      value={formData.projects}
-                      onChange={handleFormChange}
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Form Actions */}
-              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => {
-                    resetForm();
-                    onClose();
-                  }}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Reset
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Update Employee
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Registration Form Modal Component
-  const RegistrationFormModal = ({ isOpen, onClose }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-6">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Employee Registration</h2>
-                <p className="text-gray-600 mt-1">Complete the form below to register a new employee</p>
-              </div>
-              <button
-                onClick={() => {
-                  resetRegistrationForm();
-                  onClose();
-                }}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <form onSubmit={handleRegistrationSubmit}>
-              {/* REGISTER HERE Section */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  REGISTER HERE
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={registrationFormData.email}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter email address"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Password *
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      value={registrationFormData.password}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter password"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Confirm Password *
-                    </label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={registrationFormData.confirmPassword}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Confirm password"
-                    />
-                  </div>
-                </div>
-
-                {/* Security Questions */}
-                <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-900 mb-3">Security Questions</h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Security Question 1
-                      </label>
-                      <select
-                        name="securityQuestion1"
-                        value={registrationFormData.securityQuestion1}
-                        onChange={handleRegistrationFormChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select a security question</option>
-                        {securityQuestions.map((question, index) => (
-                          <option key={index} value={question}>{question}</option>
-                        ))}
-                      </select>
-                      <input
-                        type="text"
-                        name="securityAnswer1"
-                        value={registrationFormData.securityAnswer1}
-                        onChange={handleRegistrationFormChange}
-                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Your answer"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Security Question 2
-                      </label>
-                      <select
-                        name="securityQuestion2"
-                        value={registrationFormData.securityQuestion2}
-                        onChange={handleRegistrationFormChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select a security question</option>
-                        {securityQuestions.map((question, index) => (
-                          <option key={index} value={question}>{question}</option>
-                        ))}
-                      </select>
-                      <input
-                        type="text"
-                        name="securityAnswer2"
-                        value={registrationFormData.securityAnswer2}
-                        onChange={handleRegistrationFormChange}
-                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Your answer"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Address */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Address
-                  </label>
-                  <textarea
-                    name="address"
-                    value={registrationFormData.address}
-                    onChange={handleRegistrationFormChange}
-                    rows="3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter your full address"
-                  />
-                </div>
-              </div>
-
-              {/* YOUR DETAILS Section */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  YOUR DETAILS
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      First Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={registrationFormData.firstName}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter first name"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Last Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={registrationFormData.lastName}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter last name"
-                    />
-                  </div>
-                </div>
-
-                {/* Relocation Required */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Relocation Required *
-                  </label>
-                  <div className="flex space-x-6">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="relocationRequired"
-                        value="YES"
-                        checked={registrationFormData.relocationRequired === 'YES'}
-                        onChange={handleRegistrationFormChange}
-                        className="h-4 w-4 text-blue-600"
-                      />
-                      <span className="ml-2 text-gray-700">YES</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="relocationRequired"
-                        value="NO"
-                        checked={registrationFormData.relocationRequired === 'NO'}
-                        onChange={handleRegistrationFormChange}
-                        className="h-4 w-4 text-blue-600"
-                      />
-                      <span className="ml-2 text-gray-700">NO</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Country *
-                    </label>
-                    <select
-                      name="country"
-                      value={registrationFormData.country}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select country</option>
-                      {countries.map((country, index) => (
-                        <option key={index} value={country}>{country}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number *
-                    </label>
-                    <input
-                      type="tel"
-                      name="phoneNumber"
-                      value={registrationFormData.phoneNumber}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter phone number"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Date of Birth *
-                    </label>
-                    <input
-                      type="date"
-                      name="dateOfBirth"
-                      value={registrationFormData.dateOfBirth}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* QUALIFICATIONS Section */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  QUALIFICATIONS
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Select University *
-                    </label>
-                    <select
-                      name="university"
-                      value={registrationFormData.university}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select university</option>
-                      {universities.map((university, index) => (
-                        <option key={index} value={university}>{university}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Highest Qualification *
-                    </label>
-                    <select
-                      name="highestQualification"
-                      value={registrationFormData.highestQualification}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select qualification</option>
-                      {qualifications.map((qualification, index) => (
-                        <option key={index} value={qualification}>{qualification}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Grade Points *
-                    </label>
-                    <input
-                      type="text"
-                      name="gradePoints"
-                      value={registrationFormData.gradePoints}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="e.g., 3.8/4.0 or 85%"
-                    />
-                  </div>
-                </div>
-
-                {/* File Upload */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload Resume/CV *
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <div className="mb-4">
-                      <svg className="w-12 h-12 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
-                    </div>
-                    <div className="flex items-center justify-center">
-                      <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors">
-                        Choose Files
-                        <input
-                          type="file"
-                          name="resumeFile"
-                          onChange={handleRegistrationFormChange}
-                          className="hidden"
-                          accept=".pdf,.doc,.docx"
-                          required
-                        />
-                      </label>
-                      <span className="ml-3 text-gray-600">
-                        {registrationFormData.resumeFile ? registrationFormData.resumeFile.name : 'No file chosen'}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-4">or drag and drop files here</p>
-                    <p className="text-xs text-gray-400 mt-2">PDF, DOC, DOCX up to 10MB</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* EPF/ETF Section */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  EPF/ETF DETAILS
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      EPF Status *
-                    </label>
-                    <div className="space-y-3">
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="epfStatus"
-                          value="active"
-                          checked={registrationFormData.epfStatus === 'active'}
-                          onChange={handleRegistrationFormChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-3 text-gray-700">Active</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="epfStatus"
-                          value="inactive"
-                          checked={registrationFormData.epfStatus === 'inactive'}
-                          onChange={handleRegistrationFormChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-3 text-gray-700">Inactive</span>
-                      </label>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ETF Status *
-                    </label>
-                    <div className="space-y-3">
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="etfStatus"
-                          value="active"
-                          checked={registrationFormData.etfStatus === 'active'}
-                          onChange={handleRegistrationFormChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-3 text-gray-700">Active</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="etfStatus"
-                          value="inactive"
-                          checked={registrationFormData.etfStatus === 'inactive'}
-                          onChange={handleRegistrationFormChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-3 text-gray-700">Inactive</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* JOB DETAILS Section */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  JOB DETAILS
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Job Category *
-                    </label>
-                    <select
-                      name="jobCategory"
-                      value={registrationFormData.jobCategory}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select job category</option>
-                      {jobCategories.map((category, index) => (
-                        <option key={index} value={category}>{category}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Job Designation *
-                    </label>
-                    <select
-                      name="jobDesignation"
-                      value={registrationFormData.jobDesignation}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select designation</option>
-                      {jobDesignations.map((designation, index) => (
-                        <option key={index} value={designation}>{designation}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Employee Type *
-                    </label>
-                    <select
-                      name="employeeType"
-                      value={registrationFormData.employeeType}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      {employeeTypes.map((type, index) => (
-                        <option key={index} value={type}>
-                          {type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* BANK DETAILS Section */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  BANK DETAILS
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Bank Name *
-                    </label>
-                    <select
-                      name="bankName"
-                      value={registrationFormData.bankName}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select bank</option>
-                      {bankNames.map((bank, index) => (
-                        <option key={index} value={bank}>{bank}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Account Number *
-                    </label>
-                    <input
-                      type="text"
-                      name="accountNumber"
-                      value={registrationFormData.accountNumber}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter account number"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Account Type *
-                    </label>
-                    <select
-                      name="accountType"
-                      value={registrationFormData.accountType}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      {accountTypes.map((type, index) => (
-                        <option key={index} value={type}>
-                          {type.charAt(0).toUpperCase() + type.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Branch *
-                    </label>
-                    <input
-                      type="text"
-                      name="branch"
-                      value={registrationFormData.branch}
-                      onChange={handleRegistrationFormChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter branch name"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Bank Code
-                    </label>
-                    <input
-                      type="text"
-                      name="bankCode"
-                      value={registrationFormData.bankCode}
-                      onChange={handleRegistrationFormChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter bank code"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Form Actions */}
-              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => {
-                    resetRegistrationForm();
-                    onClose();
-                  }}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={resetRegistrationForm}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Reset Form
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Register Employee
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1695,15 +2038,15 @@ const Employees = () => {
               <p className="text-gray-600 mt-1 md:mt-2">Manage your team members and their information</p>
             </div>
             <div className="flex items-center gap-3">
-              {/* Registration Button */}
+              {/* Add Employee Button */}
               <button
-                onClick={() => setIsRegistrationModalOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm md:text-base"
+                onClick={handleAddClick}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm md:text-base"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Register Employee
+                Add New Employee
               </button>
               
               {/* View Mode Toggle */}
@@ -1827,7 +2170,11 @@ const Employees = () => {
                   <tr key={employee.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <img src={employee.avatar} alt={employee.name} className="w-10 h-10 rounded-full" />
+                        {employee.employeePhoto ? (
+                          <img src={employee.employeePhoto} alt={employee.name} className="w-10 h-10 rounded-full object-cover" />
+                        ) : (
+                          <img src={employee.avatar} alt={employee.name} className="w-10 h-10 rounded-full" />
+                        )}
                         <div className="ml-4">
                           <div className="font-medium text-gray-900">{employee.name}</div>
                           <div className="text-sm text-gray-500">{employee.email}</div>
@@ -1902,24 +2249,20 @@ const Employees = () => {
         />
       )}
 
-      {/* Edit Employee Modal */}
-      <EmployeeFormModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          resetForm();
-          setIsEditModalOpen(false);
-        }}
-        onSubmit={handleEditEmployee}
-        title="Edit Employee"
-      />
-
-      {/* Registration Form Modal */}
-      <RegistrationFormModal
-        isOpen={isRegistrationModalOpen}
-        onClose={() => {
-          resetRegistrationForm();
-          setIsRegistrationModalOpen(false);
-        }}
+      {/* Add Employee Form Modal */}
+      <AddEmployeeForm
+        isOpen={isAddModalOpen}
+        onClose={handleCloseAddModal}
+        currentStep={currentStep}
+        formData={formData}
+        formErrors={formErrors}
+        availableDepartments={availableDepartments}
+        handleFormChange={handleFormChange}
+        handleFileChange={handleFileChange}
+        nextStep={nextStep}
+        prevStep={prevStep}
+        handleAddEmployee={handleAddEmployee}
+        handleCloseAddModal={handleCloseAddModal}
       />
     </div>
   );
