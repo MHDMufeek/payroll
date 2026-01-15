@@ -1,4 +1,4 @@
- import React, { useState } from 'react';
+import React, { useState } from 'react';
 import TopNav from "../components/TopNav";
 
 const Employees = () => {
@@ -129,14 +129,13 @@ const Employees = () => {
   // State Management
   const [employees, setEmployees] = useState(initialEmployees);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [sortBy, setSortBy] = useState('name');
   
-  // Form state for adding/editing employee
+  // Form state for editing employee
   const [formData, setFormData] = useState({
     name: '',
     position: '',
@@ -150,6 +149,168 @@ const Employees = () => {
     performance: '4.0',
     projects: '0'
   });
+
+  // New registration form states
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
+  const [registrationFormData, setRegistrationFormData] = useState({
+    // REGISTER HERE
+    email: '',
+    password: '',
+    confirmPassword: '',
+    securityQuestion1: '',
+    securityAnswer1: '',
+    securityQuestion2: '',
+    securityAnswer2: '',
+    address: '',
+    
+    // YOUR DETAILS
+    firstName: '',
+    lastName: '',
+    relocationRequired: 'NO',
+    country: '',
+    phoneNumber: '',
+    dateOfBirth: '',
+    
+    // QUALIFICATIONS
+    university: '',
+    highestQualification: '',
+    gradePoints: '',
+    resumeFile: null,
+    
+    // NEW FIELDS: EPF/ETF
+    epfStatus: 'active',
+    etfStatus: 'active',
+    
+    // JOB DETAILS
+    jobCategory: '',
+    jobDesignation: '',
+    employeeType: 'full-time',
+    
+    // BANK DETAILS
+    bankName: '',
+    accountNumber: '',
+    accountType: 'savings',
+    branch: '',
+    bankCode: ''
+  });
+
+  // Security questions options
+  const securityQuestions = [
+    'What was your first pet\'s name?',
+    'What is your mother\'s maiden name?',
+    'What city were you born in?',
+    'What was your first car?',
+    'What is your favorite book?',
+    'What is your childhood nickname?'
+  ];
+
+  // Countries list
+  const countries = [
+    'United States',
+    'Canada',
+    'United Kingdom',
+    'Australia',
+    'Germany',
+    'France',
+    'India',
+    'Japan',
+    'China',
+    'Brazil',
+    'Sri Lanka'
+  ];
+
+  // Universities list
+  const universities = [
+    'Harvard University',
+    'Stanford University',
+    'MIT',
+    'University of Cambridge',
+    'University of Oxford',
+    'University of Toronto',
+    'National University of Singapore',
+    'University of Melbourne',
+    'University of Tokyo',
+    'University of Colombo',
+    'University of Moratuwa',
+    'Other'
+  ];
+
+  // Qualifications list
+  const qualifications = [
+    'High School',
+    'Associate Degree',
+    'Bachelor\'s Degree',
+    'Master\'s Degree',
+    'Doctorate',
+    'Professional Certificate',
+    'Diploma'
+  ];
+
+  // Job Categories
+  const jobCategories = [
+    'Information Technology',
+    'Engineering',
+    'Marketing',
+    'Sales',
+    'Human Resources',
+    'Finance',
+    'Operations',
+    'Customer Service',
+    'Research & Development',
+    'Administration'
+  ];
+
+  // Job Designations
+  const jobDesignations = [
+    'Software Engineer',
+    'Senior Software Engineer',
+    'Team Lead',
+    'Project Manager',
+    'Product Manager',
+    'UX Designer',
+    'DevOps Engineer',
+    'Data Scientist',
+    'Business Analyst',
+    'Marketing Executive',
+    'Sales Executive',
+    'HR Executive',
+    'Finance Manager',
+    'Operations Manager'
+  ];
+
+  // Employee Types
+  const employeeTypes = [
+    'full-time',
+    'part-time',
+    'contract',
+    'temporary',
+    'intern',
+    'freelance'
+  ];
+
+  // Bank Names
+  const bankNames = [
+    'Bank of America',
+    'Chase Bank',
+    'Wells Fargo',
+    'Citibank',
+    'HSBC',
+    'Standard Chartered',
+    'Commercial Bank',
+    'People\'s Bank',
+    'Hatton National Bank',
+    'Sampath Bank',
+    'Other'
+  ];
+
+  // Account Types
+  const accountTypes = [
+    'savings',
+    'checking',
+    'current',
+    'salary',
+    'fixed deposit'
+  ];
 
   // Get unique departments for filters
   const departments = ['all', ...new Set(employees.map(emp => emp.department))];
@@ -202,38 +363,7 @@ const Employees = () => {
     avgPerformance: (employees.reduce((acc, emp) => acc + emp.performance, 0) / employees.length).toFixed(1)
   };
 
-  // Event Handlers
-  const handleAddEmployee = (e) => {
-    e.preventDefault();
-    
-    // Process skills string into array
-    const skillsArray = formData.skills
-      .split(',')
-      .map(skill => skill.trim())
-      .filter(skill => skill.length > 0);
-
-    const maxId = Math.max(...employees.map(emp => emp.id));
-    const newEmployee = {
-      id: maxId + 1,
-      name: formData.name,
-      position: formData.position,
-      department: formData.department,
-      email: formData.email,
-      phone: formData.phone,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name || 'New'}`,
-      status: formData.status,
-      hireDate: formData.hireDate,
-      salary: formData.salary ? `$${parseInt(formData.salary).toLocaleString()}` : '$0',
-      skills: skillsArray,
-      projects: parseInt(formData.projects) || 0,
-      performance: parseFloat(formData.performance) || 4.0
-    };
-
-    setEmployees([...employees, newEmployee]);
-    resetForm();
-    setIsAddModalOpen(false);
-  };
-
+  // Event Handlers for editing employee
   const handleEditEmployee = (e) => {
     e.preventDefault();
     
@@ -316,6 +446,125 @@ const Employees = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  // Event Handlers for registration form
+  const handleRegistrationFormChange = (e) => {
+    const { name, value, type, files, checked } = e.target;
+    
+    if (type === 'file') {
+      setRegistrationFormData(prev => ({
+        ...prev,
+        [name]: files[0]
+      }));
+    } else if (type === 'checkbox') {
+      setRegistrationFormData(prev => ({
+        ...prev,
+        [name]: checked
+      }));
+    } else {
+      setRegistrationFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const handleRegistrationSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (registrationFormData.password !== registrationFormData.confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
+
+    if (!registrationFormData.resumeFile) {
+      alert('Please upload a resume file');
+      return;
+    }
+
+    // Process the form data
+    console.log('Registration Data:', registrationFormData);
+    
+    // Create a new employee from registration data
+    const maxId = Math.max(...employees.map(emp => emp.id));
+    const newEmployee = {
+      id: maxId + 1,
+      name: `${registrationFormData.firstName} ${registrationFormData.lastName}`,
+      position: registrationFormData.jobDesignation || 'New Employee',
+      department: registrationFormData.jobCategory || 'To be Assigned',
+      email: registrationFormData.email,
+      phone: registrationFormData.phoneNumber,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${registrationFormData.firstName}`,
+      status: 'active',
+      hireDate: new Date().toISOString().split('T')[0],
+      salary: '$50,000',
+      skills: [registrationFormData.highestQualification],
+      projects: 0,
+      performance: 4.0,
+      // Additional fields
+      epfStatus: registrationFormData.epfStatus,
+      etfStatus: registrationFormData.etfStatus,
+      employeeType: registrationFormData.employeeType,
+      bankDetails: {
+        bankName: registrationFormData.bankName,
+        accountNumber: registrationFormData.accountNumber,
+        accountType: registrationFormData.accountType,
+        branch: registrationFormData.branch
+      }
+    };
+
+    setEmployees([...employees, newEmployee]);
+    
+    // Reset form and close modal
+    resetRegistrationForm();
+    setIsRegistrationModalOpen(false);
+    alert('Employee registered successfully!');
+  };
+
+  const resetRegistrationForm = () => {
+    setRegistrationFormData({
+      // REGISTER HERE
+      email: '',
+      password: '',
+      confirmPassword: '',
+      securityQuestion1: '',
+      securityAnswer1: '',
+      securityQuestion2: '',
+      securityAnswer2: '',
+      address: '',
+      
+      // YOUR DETAILS
+      firstName: '',
+      lastName: '',
+      relocationRequired: 'NO',
+      country: '',
+      phoneNumber: '',
+      dateOfBirth: '',
+      
+      // QUALIFICATIONS
+      university: '',
+      highestQualification: '',
+      gradePoints: '',
+      resumeFile: null,
+      
+      // NEW FIELDS: EPF/ETF
+      epfStatus: 'active',
+      etfStatus: 'active',
+      
+      // JOB DETAILS
+      jobCategory: '',
+      jobDesignation: '',
+      employeeType: 'full-time',
+      
+      // BANK DETAILS
+      bankName: '',
+      accountNumber: '',
+      accountType: 'savings',
+      branch: '',
+      bankCode: ''
+    });
   };
 
   // Employee Card Component
@@ -563,8 +812,8 @@ const Employees = () => {
     );
   };
 
-  // Employee Form Modal Component (Used for both Add and Edit)
-  const EmployeeFormModal = ({ isOpen, onClose, onSubmit, title, isEdit = false }) => {
+  // Employee Form Modal Component (Used for editing only)
+  const EmployeeFormModal = ({ isOpen, onClose, onSubmit, title }) => {
     if (!isOpen) return null;
 
     return (
@@ -801,7 +1050,629 @@ const Employees = () => {
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  {isEdit ? 'Update Employee' : 'Add Employee'}
+                  Update Employee
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Registration Form Modal Component
+  const RegistrationFormModal = ({ isOpen, onClose }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Employee Registration</h2>
+                <p className="text-gray-600 mt-1">Complete the form below to register a new employee</p>
+              </div>
+              <button
+                onClick={() => {
+                  resetRegistrationForm();
+                  onClose();
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleRegistrationSubmit}>
+              {/* REGISTER HERE Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  REGISTER HERE
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={registrationFormData.email}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Password *
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      value={registrationFormData.password}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter password"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Confirm Password *
+                    </label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={registrationFormData.confirmPassword}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Confirm password"
+                    />
+                  </div>
+                </div>
+
+                {/* Security Questions */}
+                <div className="mb-6">
+                  <h4 className="text-md font-medium text-gray-900 mb-3">Security Questions</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Security Question 1
+                      </label>
+                      <select
+                        name="securityQuestion1"
+                        value={registrationFormData.securityQuestion1}
+                        onChange={handleRegistrationFormChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select a security question</option>
+                        {securityQuestions.map((question, index) => (
+                          <option key={index} value={question}>{question}</option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        name="securityAnswer1"
+                        value={registrationFormData.securityAnswer1}
+                        onChange={handleRegistrationFormChange}
+                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Your answer"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Security Question 2
+                      </label>
+                      <select
+                        name="securityQuestion2"
+                        value={registrationFormData.securityQuestion2}
+                        onChange={handleRegistrationFormChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select a security question</option>
+                        {securityQuestions.map((question, index) => (
+                          <option key={index} value={question}>{question}</option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        name="securityAnswer2"
+                        value={registrationFormData.securityAnswer2}
+                        onChange={handleRegistrationFormChange}
+                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Your answer"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                  </label>
+                  <textarea
+                    name="address"
+                    value={registrationFormData.address}
+                    onChange={handleRegistrationFormChange}
+                    rows="3"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter your full address"
+                  />
+                </div>
+              </div>
+
+              {/* YOUR DETAILS Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  YOUR DETAILS
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      First Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={registrationFormData.firstName}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter first name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Last Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={registrationFormData.lastName}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter last name"
+                    />
+                  </div>
+                </div>
+
+                {/* Relocation Required */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Relocation Required *
+                  </label>
+                  <div className="flex space-x-6">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="relocationRequired"
+                        value="YES"
+                        checked={registrationFormData.relocationRequired === 'YES'}
+                        onChange={handleRegistrationFormChange}
+                        className="h-4 w-4 text-blue-600"
+                      />
+                      <span className="ml-2 text-gray-700">YES</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="relocationRequired"
+                        value="NO"
+                        checked={registrationFormData.relocationRequired === 'NO'}
+                        onChange={handleRegistrationFormChange}
+                        className="h-4 w-4 text-blue-600"
+                      />
+                      <span className="ml-2 text-gray-700">NO</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Country *
+                    </label>
+                    <select
+                      name="country"
+                      value={registrationFormData.country}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select country</option>
+                      {countries.map((country, index) => (
+                        <option key={index} value={country}>{country}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={registrationFormData.phoneNumber}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Date of Birth *
+                    </label>
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={registrationFormData.dateOfBirth}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* QUALIFICATIONS Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  QUALIFICATIONS
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Select University *
+                    </label>
+                    <select
+                      name="university"
+                      value={registrationFormData.university}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select university</option>
+                      {universities.map((university, index) => (
+                        <option key={index} value={university}>{university}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Highest Qualification *
+                    </label>
+                    <select
+                      name="highestQualification"
+                      value={registrationFormData.highestQualification}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select qualification</option>
+                      {qualifications.map((qualification, index) => (
+                        <option key={index} value={qualification}>{qualification}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Grade Points *
+                    </label>
+                    <input
+                      type="text"
+                      name="gradePoints"
+                      value={registrationFormData.gradePoints}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g., 3.8/4.0 or 85%"
+                    />
+                  </div>
+                </div>
+
+                {/* File Upload */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Resume/CV *
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <div className="mb-4">
+                      <svg className="w-12 h-12 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors">
+                        Choose Files
+                        <input
+                          type="file"
+                          name="resumeFile"
+                          onChange={handleRegistrationFormChange}
+                          className="hidden"
+                          accept=".pdf,.doc,.docx"
+                          required
+                        />
+                      </label>
+                      <span className="ml-3 text-gray-600">
+                        {registrationFormData.resumeFile ? registrationFormData.resumeFile.name : 'No file chosen'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-4">or drag and drop files here</p>
+                    <p className="text-xs text-gray-400 mt-2">PDF, DOC, DOCX up to 10MB</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* EPF/ETF Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  EPF/ETF DETAILS
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      EPF Status *
+                    </label>
+                    <div className="space-y-3">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="epfStatus"
+                          value="active"
+                          checked={registrationFormData.epfStatus === 'active'}
+                          onChange={handleRegistrationFormChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-3 text-gray-700">Active</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="epfStatus"
+                          value="inactive"
+                          checked={registrationFormData.epfStatus === 'inactive'}
+                          onChange={handleRegistrationFormChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-3 text-gray-700">Inactive</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ETF Status *
+                    </label>
+                    <div className="space-y-3">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="etfStatus"
+                          value="active"
+                          checked={registrationFormData.etfStatus === 'active'}
+                          onChange={handleRegistrationFormChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-3 text-gray-700">Active</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="etfStatus"
+                          value="inactive"
+                          checked={registrationFormData.etfStatus === 'inactive'}
+                          onChange={handleRegistrationFormChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-3 text-gray-700">Inactive</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* JOB DETAILS Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  JOB DETAILS
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Job Category *
+                    </label>
+                    <select
+                      name="jobCategory"
+                      value={registrationFormData.jobCategory}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select job category</option>
+                      {jobCategories.map((category, index) => (
+                        <option key={index} value={category}>{category}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Job Designation *
+                    </label>
+                    <select
+                      name="jobDesignation"
+                      value={registrationFormData.jobDesignation}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select designation</option>
+                      {jobDesignations.map((designation, index) => (
+                        <option key={index} value={designation}>{designation}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Employee Type *
+                    </label>
+                    <select
+                      name="employeeType"
+                      value={registrationFormData.employeeType}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      {employeeTypes.map((type, index) => (
+                        <option key={index} value={type}>
+                          {type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* BANK DETAILS Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  BANK DETAILS
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bank Name *
+                    </label>
+                    <select
+                      name="bankName"
+                      value={registrationFormData.bankName}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">Select bank</option>
+                      {bankNames.map((bank, index) => (
+                        <option key={index} value={bank}>{bank}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Account Number *
+                    </label>
+                    <input
+                      type="text"
+                      name="accountNumber"
+                      value={registrationFormData.accountNumber}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter account number"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Account Type *
+                    </label>
+                    <select
+                      name="accountType"
+                      value={registrationFormData.accountType}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      {accountTypes.map((type, index) => (
+                        <option key={index} value={type}>
+                          {type.charAt(0).toUpperCase() + type.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Branch *
+                    </label>
+                    <input
+                      type="text"
+                      name="branch"
+                      value={registrationFormData.branch}
+                      onChange={handleRegistrationFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter branch name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Bank Code
+                    </label>
+                    <input
+                      type="text"
+                      name="bankCode"
+                      value={registrationFormData.bankCode}
+                      onChange={handleRegistrationFormChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter bank code"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    resetRegistrationForm();
+                    onClose();
+                  }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={resetRegistrationForm}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Reset Form
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Register Employee
                 </button>
               </div>
             </form>
@@ -824,16 +1695,18 @@ const Employees = () => {
               <p className="text-gray-600 mt-1 md:mt-2">Manage your team members and their information</p>
             </div>
             <div className="flex items-center gap-3">
+              {/* Registration Button */}
               <button
-                onClick={() => setIsAddModalOpen(true)}
+                onClick={() => setIsRegistrationModalOpen(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm md:text-base"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                 </svg>
-                Add Employee
+                Register Employee
               </button>
               
+              {/* View Mode Toggle */}
               <div className="flex bg-white rounded-lg border border-gray-300 overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
@@ -1029,18 +1902,6 @@ const Employees = () => {
         />
       )}
 
-      {/* Add Employee Modal */}
-      <EmployeeFormModal
-        isOpen={isAddModalOpen}
-        onClose={() => {
-          resetForm();
-          setIsAddModalOpen(false);
-        }}
-        onSubmit={handleAddEmployee}
-        title="Add New Employee"
-        isEdit={false}
-      />
-
       {/* Edit Employee Modal */}
       <EmployeeFormModal
         isOpen={isEditModalOpen}
@@ -1050,7 +1911,15 @@ const Employees = () => {
         }}
         onSubmit={handleEditEmployee}
         title="Edit Employee"
-        isEdit={true}
+      />
+
+      {/* Registration Form Modal */}
+      <RegistrationFormModal
+        isOpen={isRegistrationModalOpen}
+        onClose={() => {
+          resetRegistrationForm();
+          setIsRegistrationModalOpen(false);
+        }}
       />
     </div>
   );
