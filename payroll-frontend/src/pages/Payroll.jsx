@@ -1,7 +1,9 @@
 import { useState } from "react";
 import TopNav from "../components/TopNav";
+import { useTheme } from "../context/ThemeContext";
 
 const Payroll = () => {
+  const { isDark } = useTheme();
   const [rows, setRows] = useState([
     { 
       id: 1, 
@@ -233,20 +235,20 @@ const Payroll = () => {
   }, { totalNetSalary: 0, totalAllowances: 0, totalDeductions: 0 });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={isDark ? "min-h-screen bg-gray-900" : "min-h-screen bg-gray-50"}>
       <TopNav />
 
       <div className="p-6">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Payroll Management</h1>
-            <p className="text-gray-600">Process and manage employee salary payments</p>
+            <h1 className={isDark ? "text-2xl font-bold text-white" : "text-2xl font-bold text-gray-900"}>Payroll Management</h1>
+            <p className={isDark ? "text-gray-400" : "text-gray-600"}>Process and manage employee salary payments</p>
           </div>
           <div className="mt-4 md:mt-0 flex space-x-3">
             <button 
               onClick={() => alert("Exporting payroll report...")}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+              className={isDark ? "px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors flex items-center" : "px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center"}
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -267,33 +269,33 @@ const Payroll = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className={isDark ? "bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700" : "bg-white p-6 rounded-xl shadow-sm border border-gray-100"}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 font-medium">Total Payroll</p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">₹{totals.totalNetSalary.toLocaleString()}</h3>
+                <p className={isDark ? "text-gray-400 font-medium" : "text-gray-600 font-medium"}>Total Payroll</p>
+                <h3 className={isDark ? "text-2xl font-bold text-white mt-2" : "text-2xl font-bold text-gray-900 mt-2"}>₹{totals.totalNetSalary.toLocaleString()}</h3>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <div className={isDark ? "w-12 h-12 bg-blue-900 rounded-lg flex items-center justify-center" : "w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"}>
                 <span className="text-blue-600 text-xl">💰</span>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-3">Total net salary for selected period</p>
+            <p className={isDark ? "text-sm text-gray-400 mt-3" : "text-sm text-gray-500 mt-3"}>Total net salary for selected period</p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className={isDark ? "bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700" : "bg-white p-6 rounded-xl shadow-sm border border-gray-100"}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 font-medium">Total Allowances</p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">₹{totals.totalAllowances.toLocaleString()}</h3>
+                <p className={isDark ? "text-gray-400 font-medium" : "text-gray-600 font-medium"}>Total Allowances</p>
+                <h3 className={isDark ? "text-2xl font-bold text-white mt-2" : "text-2xl font-bold text-gray-900 mt-2"}>₹{totals.totalAllowances.toLocaleString()}</h3>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <div className={isDark ? "w-12 h-12 bg-green-900 rounded-lg flex items-center justify-center" : "w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center"}>
                 <span className="text-green-600 text-xl">➕</span>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-3">Total allowances paid</p>
+            <p className={isDark ? "text-sm text-gray-400 mt-3" : "text-sm text-gray-500 mt-3"}>Total allowances paid</p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className={isDark ? "bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700" : "bg-white p-6 rounded-xl shadow-sm border border-gray-100"}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 font-medium">Total Deductions</p>
@@ -306,27 +308,27 @@ const Payroll = () => {
             <p className="text-sm text-gray-500 mt-3">Total deductions applied</p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className={isDark ? "bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700" : "bg-white p-6 rounded-xl shadow-sm border border-gray-100"}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 font-medium">Pending Payments</p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">
+                <p className={isDark ? "text-gray-400 font-medium" : "text-gray-600 font-medium"}>Pending Payments</p>
+                <h3 className={isDark ? "text-2xl font-bold text-white mt-2" : "text-2xl font-bold text-gray-900 mt-2"}>
                   {rows.filter(r => r.status === "Pending").length}
                 </h3>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+              <div className={isDark ? "w-12 h-12 bg-yellow-900 rounded-lg flex items-center justify-center" : "w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center"}>
                 <span className="text-yellow-600 text-xl">⏳</span>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-3">Awaiting processing</p>
+            <p className={isDark ? "text-sm text-gray-400 mt-3" : "text-sm text-gray-500 mt-3"}>Awaiting processing</p>
           </div>
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div className={isDark ? "bg-gray-800 rounded-xl shadow-sm border border-gray-700 p-6 mb-6" : "bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6"}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={isDark ? "block text-sm font-medium text-gray-300 mb-1" : "block text-sm font-medium text-gray-700 mb-1"}>
                 Search Employee
               </label>
               <div className="relative">
@@ -337,19 +339,19 @@ const Payroll = () => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search by name, ID or department..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={isDark ? "w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" : "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={isDark ? "block text-sm font-medium text-gray-300 mb-1" : "block text-sm font-medium text-gray-700 mb-1"}>
                 Pay Period
               </label>
               <select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={isDark ? "w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" : "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"}
               >
                 {payPeriods.map(period => (
                   <option key={period} value={period}>{period}</option>
@@ -358,13 +360,13 @@ const Payroll = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={isDark ? "block text-sm font-medium text-gray-300 mb-1" : "block text-sm font-medium text-gray-700 mb-1"}>
                 Status
               </label>
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={isDark ? "w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" : "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"}
               >
                 {statusOptions.map(status => (
                   <option key={status} value={status}>{status}</option>
@@ -375,85 +377,85 @@ const Payroll = () => {
         </div>
 
         {/* Payroll Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">Employee Salary Records</h2>
-            <p className="text-sm text-gray-600 mt-1">{filtered.length} records found</p>
+        <div className={isDark ? "bg-gray-800 rounded-xl shadow-sm border border-gray-700 overflow-hidden" : "bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"}>
+          <div className={isDark ? "px-6 py-4 border-b border-gray-700" : "px-6 py-4 border-b border-gray-100"}>
+            <h2 className={isDark ? "text-lg font-semibold text-white" : "text-lg font-semibold text-gray-900"}>Employee Salary Records</h2>
+            <p className={isDark ? "text-sm text-gray-400 mt-1" : "text-sm text-gray-600 mt-1"}>{filtered.length} records found</p>
           </div>
           
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className={isDark ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pay Period</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Basic Salary</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allowances</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deductions</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Salary</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Employee</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Department</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Pay Period</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Basic Salary</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Allowances</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Deductions</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Net Salary</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Status</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Payment Date</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className={isDark ? "divide-y divide-gray-700" : "divide-y divide-gray-100"}>
                 {filtered.map((row) => (
-                  <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={row.id} className={isDark ? "hover:bg-gray-700 transition-colors" : "hover:bg-gray-50 transition-colors"}>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <span className="text-blue-600 font-bold">{row.name.charAt(0)}</span>
+                        <div className={isDark ? "w-10 h-10 bg-blue-900 rounded-lg flex items-center justify-center" : "w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"}>
+                          <span className={isDark ? "text-blue-400 font-bold" : "text-blue-600 font-bold"}>{row.name.charAt(0)}</span>
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{row.name}</p>
-                          <p className="text-sm text-gray-500">ID: {row.id}</p>
+                          <p className={isDark ? "font-medium text-white" : "font-medium text-gray-900"}>{row.name}</p>
+                          <p className={isDark ? "text-sm text-gray-400" : "text-sm text-gray-500"}>ID: {row.id}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-gray-700">{row.department}</span>
+                      <span className={isDark ? "text-gray-300" : "text-gray-700"}>{row.department}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-gray-700">{row.payPeriod}</p>
+                      <p className={isDark ? "text-gray-300" : "text-gray-700"}>{row.payPeriod}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900">{row.basicSalary}</p>
+                      <p className={isDark ? "font-medium text-white" : "font-medium text-gray-900"}>{row.basicSalary}</p>
                     </td>
                     <td className="px-6 py-4">
                       <button 
                         onClick={() => setShowAllowancesModal(row)}
-                        className="font-medium text-green-600 hover:text-green-700 hover:underline"
+                        className={isDark ? "font-medium text-green-400 hover:text-green-300 hover:underline" : "font-medium text-green-600 hover:text-green-700 hover:underline"}
                       >
                         {row.totalAllowances}
                       </button>
-                      <p className="text-xs text-gray-500 mt-1">Click to view details</p>
+                      <p className={isDark ? "text-xs text-gray-400 mt-1" : "text-xs text-gray-500 mt-1"}>Click to view details</p>
                     </td>
                     <td className="px-6 py-4">
                       <button 
                         onClick={() => setShowDeductionsModal(row)}
-                        className="font-medium text-red-600 hover:text-red-700 hover:underline"
+                        className={isDark ? "font-medium text-red-400 hover:text-red-300 hover:underline" : "font-medium text-red-600 hover:text-red-700 hover:underline"}
                       >
                         {row.totalDeductions}
                       </button>
-                      <p className="text-xs text-gray-500 mt-1">Click to view details</p>
+                      <p className={isDark ? "text-xs text-gray-400 mt-1" : "text-xs text-gray-500 mt-1"}>Click to view details</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-bold text-gray-900">{row.netSalary}</p>
+                      <p className={isDark ? "font-bold text-white" : "font-bold text-gray-900"}>{row.netSalary}</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                         row.status === "Paid" 
-                          ? "bg-green-100 text-green-600" 
+                          ? (isDark ? "bg-green-900 text-green-300" : "bg-green-100 text-green-600")
                           : row.status === "Pending"
-                          ? "bg-yellow-100 text-yellow-600"
-                          : "bg-blue-100 text-blue-600"
+                          ? (isDark ? "bg-yellow-900 text-yellow-300" : "bg-yellow-100 text-yellow-600")
+                          : (isDark ? "bg-blue-900 text-blue-300" : "bg-blue-100 text-blue-600")
                       }`}>
                         {row.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className={`${row.status === "Paid" ? "text-green-600" : "text-gray-500"}`}>
+                      <p className={`${row.status === "Paid" ? (isDark ? "text-green-400" : "text-green-600") : (isDark ? "text-gray-400" : "text-gray-500")}`}>
                         {row.paymentDate}
                       </p>
                     </td>
@@ -461,7 +463,7 @@ const Payroll = () => {
                       <div className="flex items-center space-x-2">
                         <button 
                           onClick={() => handleViewSlip(row)}
-                          className="text-blue-600 hover:text-blue-700 p-1.5 rounded hover:bg-blue-50 transition-colors" 
+                          className={isDark ? "text-blue-400 hover:text-blue-300 p-1.5 rounded hover:bg-gray-600 transition-colors" : "text-blue-600 hover:text-blue-700 p-1.5 rounded hover:bg-blue-50 transition-colors"} 
                           title="View Slip"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -471,7 +473,7 @@ const Payroll = () => {
                         </button>
                         <button 
                           onClick={() => handleDownloadPDF(row)}
-                          className="text-green-600 hover:text-green-700 p-1.5 rounded hover:bg-green-50 transition-colors" 
+                          className={isDark ? "text-green-400 hover:text-green-300 p-1.5 rounded hover:bg-gray-600 transition-colors" : "text-green-600 hover:text-green-700 p-1.5 rounded hover:bg-green-50 transition-colors"} 
                           title="Download PDF"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -481,7 +483,7 @@ const Payroll = () => {
                         {row.status !== "Paid" && (
                           <button 
                             onClick={() => handlePay(row.id)}
-                            className="text-purple-600 hover:text-purple-700 p-1.5 rounded hover:bg-purple-50 transition-colors" 
+                            className={isDark ? "text-purple-400 hover:text-purple-300 p-1.5 rounded hover:bg-gray-600 transition-colors" : "text-purple-600 hover:text-purple-700 p-1.5 rounded hover:bg-purple-50 transition-colors"} 
                             title="Mark as Paid"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

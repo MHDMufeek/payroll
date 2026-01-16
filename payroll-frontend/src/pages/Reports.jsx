@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import TopNav from "../components/TopNav";
+import { useTheme } from "../context/ThemeContext";
 import { 
   BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, 
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area 
 } from 'recharts';
 
 const Reports = () => {
+  const { isDark } = useTheme();
   const [selectedReportType, setSelectedReportType] = useState('overview');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [selectedTimeRange, setSelectedTimeRange] = useState('monthly');
@@ -147,13 +149,13 @@ const Reports = () => {
             {/* Statistics Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               {overviewStats.map((stat, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div key={index} className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
                   <div className="flex items-center justify-between mb-2">
                     <div className={`w-3 h-3 rounded-full ${stat.color}`}></div>
                     <span className="text-sm font-medium text-green-600">{stat.change}</span>
                   </div>
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
+                  <div className={`text-2xl font-bold ${isDark ? "text-gray-300" : "text-gray-900"}`}>{stat.value}</div>
+                  <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -161,14 +163,14 @@ const Reports = () => {
             {/* Charts Row 1 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Attendance Trend */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Attendance Trend</h3>
+              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
+                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Attendance Trend</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={attendanceData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="month" stroke="#666" />
-                    <YAxis stroke="#666" />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#f0f0f0"} />
+                    <XAxis dataKey="month" stroke={isDark ? "#9ca3af" : "#666"} />
+                    <YAxis stroke={isDark ? "#9ca3af" : "#666"} />
+                    <Tooltip contentStyle={isDark ? {backgroundColor: '#1f2937', border: '1px solid #374151'} : {}} />
                     <Legend />
                     <Line type="monotone" dataKey="present" stroke="#10b981" strokeWidth={2} />
                     <Line type="monotone" dataKey="absent" stroke="#ef4444" strokeWidth={2} />
@@ -177,8 +179,8 @@ const Reports = () => {
               </div>
 
               {/* Department Distribution */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Employee Distribution</h3>
+              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
+                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Employee Distribution</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
@@ -195,7 +197,7 @@ const Reports = () => {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip contentStyle={isDark ? {backgroundColor: '#1f2937', border: '1px solid #374151'} : {}} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -204,14 +206,14 @@ const Reports = () => {
             {/* Charts Row 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Department Performance */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Department Performance</h3>
+              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
+                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Department Performance</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={departmentPerformance}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" stroke="#666" />
-                    <YAxis stroke="#666" />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#f0f0f0"} />
+                    <XAxis dataKey="name" stroke={isDark ? "#9ca3af" : "#666"} />
+                    <YAxis stroke={isDark ? "#9ca3af" : "#666"} />
+                    <Tooltip contentStyle={isDark ? {backgroundColor: '#1f2937', border: '1px solid #374151'} : {}} />
                     <Legend />
                     <Bar dataKey="attendance" fill="#3b82f6" name="Attendance %" />
                     <Bar dataKey="productivity" fill="#10b981" name="Productivity %" />
@@ -220,14 +222,14 @@ const Reports = () => {
               </div>
 
               {/* Payroll Trend */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Payroll Trend</h3>
+              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
+                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Payroll Trend</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={payrollData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="month" stroke="#666" />
-                    <YAxis stroke="#666" />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#f0f0f0"} />
+                    <XAxis dataKey="month" stroke={isDark ? "#9ca3af" : "#666"} />
+                    <YAxis stroke={isDark ? "#9ca3af" : "#666"} />
+                    <Tooltip contentStyle={isDark ? {backgroundColor: '#1f2937', border: '1px solid #374151'} : {}} />
                     <Area type="monotone" dataKey="salary" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} name="Salary" />
                     <Area type="monotone" dataKey="bonus" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.3} name="Bonus" />
                   </AreaChart>
@@ -236,56 +238,56 @@ const Reports = () => {
             </div>
 
             {/* Top Performers Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Top Performers</h3>
+            <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 overflow-hidden" : "bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"}>
+              <div className={`px-6 py-4 ${isDark ? "border-b border-gray-700" : "border-b border-gray-200"}`}>
+                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"}`}>Top Performers</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className={isDark ? "bg-gray-700" : "bg-gray-50"}>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metrics</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Employee</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Department</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Performance</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Metrics</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className={isDark ? "divide-y divide-gray-700 bg-gray-800" : "divide-y divide-gray-200"}>
                     {topPerformers.map((emp, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
+                      <tr key={index} className={isDark ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                              <span className="text-blue-600 font-bold">{emp.name.charAt(0)}</span>
+                            <div className={isDark ? "w-10 h-10 bg-blue-900 rounded-lg flex items-center justify-center mr-3" : "w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3"}>
+                              <span className={isDark ? "text-blue-300 font-bold" : "text-blue-600 font-bold"}>{emp.name.charAt(0)}</span>
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900">{emp.name}</div>
-                              <div className="text-sm text-gray-500">Employee ID: {1000 + index}</div>
+                              <div className={`font-medium ${isDark ? "text-gray-300" : "text-gray-900"}`}>{emp.name}</div>
+                              <div className={`text-sm ${isDark ? "text-gray-500" : "text-gray-500"}`}>Employee ID: {1000 + index}</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full">
+                          <span className={isDark ? "px-3 py-1 text-xs font-medium bg-blue-900 text-blue-200 rounded-full" : "px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full"}>
                             {emp.department}
                           </span>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
-                            <div className="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                            <div className={isDark ? "w-24 bg-gray-700 rounded-full h-2 mr-2" : "w-24 bg-gray-200 rounded-full h-2 mr-2"}>
                               <div 
                                 className="bg-green-600 h-2 rounded-full" 
                                 style={{ width: `${(emp.performance / 5) * 100}%` }}
                               ></div>
                             </div>
-                            <span className="font-medium text-gray-900">{emp.performance}/5.0</span>
+                            <span className={`font-medium ${isDark ? "text-gray-300" : "text-gray-900"}`}>{emp.performance}/5.0</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-gray-900">
+                        <td className={`px-6 py-4 ${isDark ? "text-gray-300" : "text-gray-900"}`}>
                           {emp.projects ? `${emp.projects} projects` : `${emp.deals} deals`}
                         </td>
                         <td className="px-6 py-4">
-                          <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                          <span className={isDark ? "px-3 py-1 text-xs font-medium bg-green-900 text-green-200 rounded-full" : "px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full"}>
                             Excellent
                           </span>
                         </td>
@@ -303,8 +305,8 @@ const Reports = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Attendance Summary */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Attendance Summary</h3>
+              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
+                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Attendance Summary</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Total Working Days</span>
@@ -565,7 +567,7 @@ const Reports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={isDark ? "min-h-screen bg-gray-900" : "min-h-screen bg-gray-50"}>
       <TopNav />
       
       <div className="p-4 md:p-6">
@@ -573,8 +575,8 @@ const Reports = () => {
         <div className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Analytics & Reports</h1>
-              <p className="text-gray-600 mt-2">Comprehensive analytics and reporting dashboard</p>
+              <h1 className={isDark ? "text-2xl md:text-3xl font-bold text-white" : "text-2xl md:text-3xl font-bold text-gray-900"}>Analytics & Reports</h1>
+              <p className={isDark ? "text-gray-400 mt-2" : "text-gray-600 mt-2"}>Comprehensive analytics and reporting dashboard</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <button
@@ -601,20 +603,20 @@ const Reports = () => {
               </button>
               
               <div className="relative">
-                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+                <button className={isDark ? "px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2" : "px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Export
                 </button>
-                <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 hidden group-hover:block z-10">
-                  <button onClick={() => handleExport('pdf')} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <div className={isDark ? "absolute right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 py-1 hidden group-hover:block z-10" : "absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 hidden group-hover:block z-10"}>
+                  <button onClick={() => handleExport('pdf')} className={isDark ? "block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" : "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"}>
                     Export as PDF
                   </button>
-                  <button onClick={() => handleExport('excel')} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <button onClick={() => handleExport('excel')} className={isDark ? "block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" : "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"}>
                     Export as Excel
                   </button>
-                  <button onClick={() => handleExport('csv')} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <button onClick={() => handleExport('csv')} className={isDark ? "block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" : "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"}>
                     Export as CSV
                   </button>
                 </div>
@@ -623,15 +625,15 @@ const Reports = () => {
           </div>
 
           {/* Filters */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4 mb-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6"}>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Report Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
+                <label className={isDark ? "block text-sm font-medium text-gray-300 mb-1" : "block text-sm font-medium text-gray-700 mb-1"}>Report Type</label>
                 <select
                   value={selectedReportType}
                   onChange={(e) => setSelectedReportType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className={isDark ? "w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"}
                 >
                   {reportTypes.map(type => (
                     <option key={type.id} value={type.id}>{type.name}</option>
@@ -641,11 +643,11 @@ const Reports = () => {
 
               {/* Department Filter */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                <label className={isDark ? "block text-sm font-medium text-gray-300 mb-1" : "block text-sm font-medium text-gray-700 mb-1"}>Department</label>
                 <select
                   value={selectedDepartment}
                   onChange={(e) => setSelectedDepartment(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className={isDark ? "w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"}
                 >
                   {departments.map(dept => (
                     <option key={dept.id} value={dept.id}>{dept.name}</option>
@@ -713,27 +715,27 @@ const Reports = () => {
         </div>
 
         {/* Report Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
+        <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4 md:p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6"}>
           {renderReportContent()}
         </div>
 
         {/* Quick Stats Footer */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm text-gray-600">Report Generated</div>
-            <div className="font-semibold text-gray-900">{new Date().toLocaleDateString()}</div>
+          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
+            <div className={isDark ? "text-sm text-gray-400" : "text-sm text-gray-600"}>Report Generated</div>
+            <div className={isDark ? "font-semibold text-white" : "font-semibold text-gray-900"}>{new Date().toLocaleDateString()}</div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm text-gray-600">Data Points</div>
-            <div className="font-semibold text-gray-900">1,248 records</div>
+          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
+            <div className={isDark ? "text-sm text-gray-400" : "text-sm text-gray-600"}>Data Points</div>
+            <div className={isDark ? "font-semibold text-white" : "font-semibold text-gray-900"}>1,248 records</div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm text-gray-600">Last Updated</div>
-            <div className="font-semibold text-gray-900">Today, 10:30 AM</div>
+          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
+            <div className={isDark ? "text-sm text-gray-400" : "text-sm text-gray-600"}>Last Updated</div>
+            <div className={isDark ? "font-semibold text-white" : "font-semibold text-gray-900"}>Today, 10:30 AM</div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm text-gray-600">Report Accuracy</div>
-            <div className="font-semibold text-green-600">99.8%</div>
+          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
+            <div className={isDark ? "text-sm text-gray-400" : "text-sm text-gray-600"}>Report Accuracy</div>
+            <div className={isDark ? "font-semibold text-green-400" : "font-semibold text-green-600"}>99.8%</div>
           </div>
         </div>
       </div>

@@ -1,8 +1,10 @@
 // Department.jsx
 import { useState } from "react";
 import TopNav from "../components/TopNav";
+import { useTheme } from "../context/ThemeContext";
 
 const Department = () => {
+  const { isDark } = useTheme();
   const [departments, setDepartments] = useState([
     { id: 1, name: "Human Resources", manager: "John Doe", employeeCount: 12, payrollBudget: "₹450,000", status: "Active" },
     { id: 2, name: "Information Technology", manager: "Jane Smith", employeeCount: 18, payrollBudget: "₹650,000", status: "Active" },
@@ -71,15 +73,15 @@ const Department = () => {
   const totalEmployees = departments.reduce((sum, dept) => sum + dept.employeeCount, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={isDark ? "min-h-screen bg-gray-900" : "min-h-screen bg-gray-50"}>
       <TopNav />
       
       <div className="p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Departments</h1>
-            <p className="text-gray-600">Manage all departments in your organization</p>
+            <h1 className={isDark ? "text-2xl font-bold text-white" : "text-2xl font-bold text-gray-900"}>Departments</h1>
+            <p className={isDark ? "text-gray-400" : "text-gray-600"}>Manage all departments in your organization</p>
           </div>
           <button
             onClick={handleAddDepartment}
@@ -94,37 +96,37 @@ const Department = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className={isDark ? "bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700" : "bg-white p-6 rounded-xl shadow-sm border border-gray-100"}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 font-medium">Total Departments</p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">{departments.length}</h3>
+                <p className={isDark ? "text-gray-400 font-medium" : "text-gray-600 font-medium"}>Total Departments</p>
+                <h3 className={isDark ? "text-2xl font-bold text-white mt-2" : "text-2xl font-bold text-gray-900 mt-2"}>{departments.length}</h3>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <div className={isDark ? "w-12 h-12 bg-blue-900 rounded-lg flex items-center justify-center" : "w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"}>
                 <span className="text-blue-600 text-xl">🏢</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className={isDark ? "bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700" : "bg-white p-6 rounded-xl shadow-sm border border-gray-100"}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 font-medium">Total Employees</p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">{totalEmployees}</h3>
+                <p className={isDark ? "text-gray-400 font-medium" : "text-gray-600 font-medium"}>Total Employees</p>
+                <h3 className={isDark ? "text-2xl font-bold text-white mt-2" : "text-2xl font-bold text-gray-900 mt-2"}>{totalEmployees}</h3>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <div className={isDark ? "w-12 h-12 bg-green-900 rounded-lg flex items-center justify-center" : "w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center"}>
                 <span className="text-green-600 text-xl">👥</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className={isDark ? "bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700" : "bg-white p-6 rounded-xl shadow-sm border border-gray-100"}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 font-medium">Total Payroll Budget</p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">₹{totalBudget.toLocaleString()}</h3>
+                <p className={isDark ? "text-gray-400 font-medium" : "text-gray-600 font-medium"}>Total Payroll Budget</p>
+                <h3 className={isDark ? "text-2xl font-bold text-white mt-2" : "text-2xl font-bold text-gray-900 mt-2"}>₹{totalBudget.toLocaleString()}</h3>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <div className={isDark ? "w-12 h-12 bg-purple-900 rounded-lg flex items-center justify-center" : "w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center"}>
                 <span className="text-purple-600 text-xl">💰</span>
               </div>
             </div>
@@ -132,56 +134,56 @@ const Department = () => {
         </div>
 
         {/* Departments Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">Department List</h2>
+        <div className={isDark ? "bg-gray-800 rounded-xl shadow-sm border border-gray-700 overflow-hidden" : "bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"}>
+          <div className={isDark ? "px-6 py-4 border-b border-gray-700" : "px-6 py-4 border-b border-gray-100"}>
+            <h2 className={isDark ? "text-lg font-semibold text-white" : "text-lg font-semibold text-gray-900"}>Department List</h2>
           </div>
           
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className={isDark ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employees</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payroll Budget</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Department</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Manager</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Employees</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Payroll Budget</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className={isDark ? "divide-y divide-gray-700 bg-gray-800" : "divide-y divide-gray-100 bg-white"}>
                 {departments.map((dept) => (
-                  <tr key={dept.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={dept.id} className={isDark ? "hover:bg-gray-700 transition-colors" : "hover:bg-gray-50 transition-colors"}>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <span className="text-blue-600 font-bold">{dept.name.charAt(0)}</span>
+                        <div className={isDark ? "w-10 h-10 bg-blue-900 rounded-lg flex items-center justify-center" : "w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"}>
+                          <span className={isDark ? "text-blue-300 font-bold" : "text-blue-600 font-bold"}>{dept.name.charAt(0)}</span>
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{dept.name}</p>
-                          <p className="text-sm text-gray-500">Dept ID: DEPT{dept.id.toString().padStart(3, '0')}</p>
+                          <p className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{dept.name}</p>
+                          <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>Dept ID: DEPT{dept.id.toString().padStart(3, '0')}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900">{dept.manager}</p>
-                      <p className="text-sm text-gray-500">Manager</p>
+                      <p className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{dept.manager}</p>
+                      <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>Manager</p>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900">{dept.employeeCount}</span>
-                        <span className="text-sm text-gray-500">employees</span>
+                        <span className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{dept.employeeCount}</span>
+                        <span className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>employees</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900">{dept.payrollBudget}</p>
-                      <p className="text-sm text-gray-500">per month</p>
+                      <p className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{dept.payrollBudget}</p>
+                      <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>per month</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                         dept.status === "Active" 
-                          ? "bg-green-100 text-green-600" 
-                          : "bg-red-100 text-red-600"
+                          ? (isDark ? "bg-green-900 text-green-200" : "bg-green-100 text-green-600")
+                          : (isDark ? "bg-red-900 text-red-200" : "bg-red-100 text-red-600")
                       }`}>
                         {dept.status}
                       </span>
@@ -190,7 +192,7 @@ const Department = () => {
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleEditDepartment(dept)}
-                          className="text-blue-600 hover:text-blue-700 p-1.5 rounded hover:bg-blue-50 transition-colors"
+                          className={isDark ? "text-blue-400 hover:text-blue-300 p-1.5 rounded hover:bg-gray-700 transition-colors" : "text-blue-600 hover:text-blue-700 p-1.5 rounded hover:bg-blue-50 transition-colors"}
                           title="Edit"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,7 +201,7 @@ const Department = () => {
                         </button>
                         <button
                           onClick={() => handleDeleteDepartment(dept.id)}
-                          className="text-red-600 hover:text-red-700 p-1.5 rounded hover:bg-red-50 transition-colors"
+                          className={isDark ? "text-red-400 hover:text-red-300 p-1.5 rounded hover:bg-gray-700 transition-colors" : "text-red-600 hover:text-red-700 p-1.5 rounded hover:bg-red-50 transition-colors"}
                           title="Delete"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,7 +209,7 @@ const Department = () => {
                           </svg>
                         </button>
                         <button
-                          className="text-gray-600 hover:text-gray-700 p-1.5 rounded hover:bg-gray-100 transition-colors"
+                          className={isDark ? "text-gray-400 hover:text-gray-300 p-1.5 rounded hover:bg-gray-700 transition-colors" : "text-gray-600 hover:text-gray-700 p-1.5 rounded hover:bg-gray-100 transition-colors"}
                           title="View Details"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

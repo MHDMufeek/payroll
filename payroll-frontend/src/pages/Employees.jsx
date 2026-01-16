@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import TopNav from "../components/TopNav";
+import { useTheme } from "../context/ThemeContext";
 
 // Move AddEmployeeForm component outside to prevent re-renders
 const AddEmployeeForm = React.memo(({ 
@@ -14,23 +15,24 @@ const AddEmployeeForm = React.memo(({
   nextStep,
   prevStep,
   handleAddEmployee,
-  handleCloseAddModal
+  handleCloseAddModal,
+  isDark
 }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+      <div className={isDark ? "bg-gray-800 rounded-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto" : "bg-white rounded-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto"}>
         <div className="p-6">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Add New Employee</h2>
-              <p className="text-gray-600 mt-1">Complete all sections to add a new employee</p>
+              <h2 className={isDark ? "text-2xl font-bold text-white" : "text-2xl font-bold text-gray-900"}>Add New Employee</h2>
+              <p className={isDark ? "text-gray-400 mt-1" : "text-gray-600 mt-1"}>Complete all sections to add a new employee</p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className={isDark ? "text-gray-500 hover:text-gray-300" : "text-gray-400 hover:text-gray-600"}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -1046,35 +1048,37 @@ const AddEmployeeForm = React.memo(({
 });
 
 // Employee Card Component
-const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete }) => {
+const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete, isDark }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
+    <div className={isDark ? "bg-gray-800 rounded-xl shadow-sm border border-gray-700 p-5 hover:shadow-md transition-shadow" : "bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow"}>
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           {employee.employeePhoto ? (
             <img
               src={employee.employeePhoto}
               alt={employee.name}
-              className="w-14 h-14 rounded-full border-2 border-white shadow-sm object-cover"
+              className={`w-14 h-14 rounded-full border-2 ${isDark ? "border-gray-700" : "border-white"} shadow-sm object-cover`}
             />
           ) : (
             <img
               src={employee.avatar}
               alt={employee.name}
-              className="w-14 h-14 rounded-full border-2 border-white shadow-sm"
+              className={`w-14 h-14 rounded-full border-2 ${isDark ? "border-gray-700" : "border-white"} shadow-sm`}
             />
           )}
           <div>
-            <h3 className="font-semibold text-gray-900">{employee.name}</h3>
-            <p className="text-sm text-gray-600">{employee.position}</p>
+            <h3 className={`font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{employee.name}</h3>
+            <p className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>{employee.position}</p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">
+              <span className={`text-xs px-2 py-1 rounded ${
+                isDark ? "bg-blue-900 text-blue-200" : "bg-blue-50 text-blue-700"
+              }`}>
                 {employee.department}
               </span>
               <span className={`text-xs px-2 py-1 rounded ${
                 employee.status === 'active' 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-yellow-100 text-yellow-800'
+                  ? (isDark ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800')
+                  : (isDark ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800')
               }`}>
                 {employee.status}
               </span>
@@ -1084,7 +1088,7 @@ const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete }) => {
         <div className="flex gap-2">
           <button
             onClick={onView}
-            className="text-blue-600 hover:text-blue-800"
+            className={isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-800"}
             title="View Details"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1094,7 +1098,7 @@ const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete }) => {
           </button>
           <button
             onClick={onEdit}
-            className="text-green-600 hover:text-green-800"
+            className={isDark ? "text-green-400 hover:text-green-300" : "text-green-600 hover:text-green-800"}
             title="Edit"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1103,7 +1107,7 @@ const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete }) => {
           </button>
           <button
             onClick={onDelete}
-            className="text-red-600 hover:text-red-800"
+            className={isDark ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-800"}
             title="Delete"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1114,13 +1118,13 @@ const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete }) => {
       </div>
       
       <div className="mt-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className={`flex items-center gap-2 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
           <span className="truncate">{employee.email}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className={`flex items-center gap-2 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -1134,13 +1138,15 @@ const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete }) => {
           {employee.skills.slice(0, 3).map((skill, index) => (
             <span
               key={index}
-              className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded"
+              className={`px-2 py-1 text-xs font-medium rounded ${
+                isDark ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"
+              }`}
             >
               {skill}
             </span>
           ))}
           {employee.skills.length > 3 && (
-            <span className="px-2 py-1 text-xs font-medium text-gray-500">
+            <span className={`px-2 py-1 text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}>
               +{employee.skills.length - 3} more
             </span>
           )}
@@ -1151,99 +1157,9 @@ const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete }) => {
 });
 
 const Employees = () => {
-  // Mock employee data with enhanced structure
-  const initialEmployees = [
-    {
-      id: 1,
-      name: 'John Smith',
-      position: 'Senior Developer',
-      department: 'Engineering',
-      email: 'john.smith@company.com',
-      phone: '+1 (555) 123-4567',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-      employeePhoto: null, // Added field
-      cvDocument: null, // Added field
-      additionalDocuments: [], // Added field
-      status: 'active',
-      hireDate: '2020-03-15',
-      salary: '$95,000',
-      skills: ['React', 'Node.js', 'TypeScript', 'AWS'],
-      projects: 12,
-      performance: 4.8,
-      // Enhanced fields
-      personalInfo: {
-        firstName: 'John',
-        lastName: 'Smith',
-        dateOfBirth: '1985-05-15',
-        gender: 'Male',
-        nicNumber: '851234567V',
-        nationality: 'American',
-        maritalStatus: 'Married',
-        address: '123 Main St, New York, NY'
-      },
-      qualifications: {
-        highestQualification: "Master's Degree",
-        university: 'MIT',
-        yearOfGraduation: '2010',
-        degree: 'Computer Science',
-        professionalQualifications: 'AWS Certified'
-      },
-      jobDetails: {
-        employeeId: 'EMP20001',
-        designation: 'Senior Developer',
-        employmentType: 'Permanent',
-        reportingManager: 'Jane Doe',
-        workLocation: 'New York Office',
-        basicSalary: 85000,
-        allowances: 10000,
-        grossSalary: 95000
-      },
-      epfEtfDetails: {
-        epfNumber: 'EPF123456789',
-        etfNumber: 'ETF987654321',
-        epfStartDate: '2020-03-15',
-        employeeEpfRate: 8,
-        employerEpfRate: 12,
-        etfRate: 3
-      },
-      bankDetails: {
-        bankName: 'Bank of America',
-        branch: 'New York Main',
-        accountNumber: '1234567890',
-        accountType: 'Savings',
-        accountHolderName: 'John Smith',
-        paymentMethod: 'Bank Transfer'
-      }
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      position: 'Product Manager',
-      department: 'Product',
-      email: 'sarah.j@company.com',
-      phone: '+1 (555) 234-5678',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-      employeePhoto: null,
-      cvDocument: null,
-      additionalDocuments: [],
-      status: 'active',
-      hireDate: '2019-07-22',
-      salary: '$110,000',
-      skills: ['Product Strategy', 'Agile', 'User Research'],
-      projects: 8,
-      performance: 4.9,
-      personalInfo: {
-        firstName: 'Sarah',
-        lastName: 'Johnson',
-        dateOfBirth: '1988-08-22',
-        gender: 'Female',
-        nicNumber: '882345678V',
-        nationality: 'American',
-        maritalStatus: 'Single',
-        address: '456 Oak Ave, San Francisco, CA'
-      }
-    }
-  ];
+  const { isDark } = useTheme();
+  // Start with empty employee data
+  const initialEmployees = [];
 
   // State Management
   const [employees, setEmployees] = useState(initialEmployees);
@@ -1372,12 +1288,14 @@ const Employees = () => {
       }
     });
 
-  // Statistics
+  // Statistics - Handle empty state
   const stats = {
     total: employees.length,
     active: employees.filter(emp => emp.status === 'active').length,
     departments: [...new Set(employees.map(emp => emp.department))].length,
-    avgPerformance: (employees.reduce((acc, emp) => acc + emp.performance, 0) / employees.length).toFixed(1)
+    avgPerformance: employees.length > 0 
+      ? (employees.reduce((acc, emp) => acc + emp.performance, 0) / employees.length).toFixed(1)
+      : '0.0'
   };
 
   // Generate employee ID
@@ -1539,7 +1457,7 @@ const Employees = () => {
         };
 
         // Create new employee object
-        const newId = Math.max(...employees.map(emp => emp.id)) + 1;
+        const newId = employees.length > 0 ? Math.max(...employees.map(emp => emp.id)) + 1 : 1;
         const skills = finalData.technicalSkills 
           ? finalData.technicalSkills.split(',').map(skill => skill.trim())
           : [];
@@ -2026,7 +1944,7 @@ const Employees = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={isDark ? "min-h-screen bg-gray-900" : "min-h-screen bg-gray-50"}>
       <TopNav />
       
       <div className="p-4 md:p-6">
@@ -2073,33 +1991,33 @@ const Employees = () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-              <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-              <div className="text-sm text-gray-600">Total Employees</div>
+            <div className={isDark ? "bg-gray-800 rounded-xl p-4 border border-gray-700 shadow-sm" : "bg-white rounded-xl p-4 border border-gray-200 shadow-sm"}>
+              <div className={`text-2xl font-bold ${isDark ? "text-gray-300" : "text-gray-900"}`}>{stats.total}</div>
+              <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Total Employees</div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-              <div className="text-2xl font-bold text-green-600">{stats.active}</div>
-              <div className="text-sm text-gray-600">Active</div>
+            <div className={isDark ? "bg-gray-800 rounded-xl p-4 border border-gray-700 shadow-sm" : "bg-white rounded-xl p-4 border border-gray-200 shadow-sm"}>
+              <div className={isDark ? "text-2xl font-bold text-green-400" : "text-2xl font-bold text-green-600"}>{stats.active}</div>
+              <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Active</div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-              <div className="text-2xl font-bold text-blue-600">{stats.departments}</div>
-              <div className="text-sm text-gray-600">Departments</div>
+            <div className={isDark ? "bg-gray-800 rounded-xl p-4 border border-gray-700 shadow-sm" : "bg-white rounded-xl p-4 border border-gray-200 shadow-sm"}>
+              <div className={isDark ? "text-2xl font-bold text-blue-400" : "text-2xl font-bold text-blue-600"}>{stats.departments}</div>
+              <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Departments</div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-              <div className="text-2xl font-bold text-purple-600">{stats.avgPerformance}</div>
-              <div className="text-sm text-gray-600">Avg Performance</div>
+            <div className={isDark ? "bg-gray-800 rounded-xl p-4 border border-gray-700 shadow-sm" : "bg-white rounded-xl p-4 border border-gray-200 shadow-sm"}>
+              <div className={isDark ? "text-2xl font-bold text-purple-400" : "text-2xl font-bold text-purple-600"}>{stats.avgPerformance}</div>
+              <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Avg Performance</div>
             </div>
           </div>
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-white rounded-xl p-4 mb-6 border border-gray-200 shadow-sm">
+        <div className={isDark ? "bg-gray-800 rounded-xl p-4 mb-6 border border-gray-700 shadow-sm" : "bg-white rounded-xl p-4 mb-6 border border-gray-200 shadow-sm"}>
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-5 h-5 ${isDark ? "text-gray-500" : "text-gray-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
@@ -2108,7 +2026,7 @@ const Employees = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search employees by name, position, or email..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={isDark ? "w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" : "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"}
                 />
               </div>
             </div>
@@ -2117,7 +2035,7 @@ const Employees = () => {
             <select
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={isDark ? "border border-gray-600 rounded-lg px-4 py-2 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" : "border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"}
             >
               {departments.map(dept => (
                 <option key={dept} value={dept}>
@@ -2130,7 +2048,7 @@ const Employees = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={isDark ? "border border-gray-600 rounded-lg px-4 py-2 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" : "border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"}
             >
               <option value="name">Sort by Name</option>
               <option value="department">Sort by Department</option>
@@ -2147,6 +2065,7 @@ const Employees = () => {
               <EmployeeCard
                 key={employee.id}
                 employee={employee}
+                isDark={isDark}
                 onView={() => setSelectedEmployee(employee)}
                 onEdit={() => handleEditClick(employee)}
                 onDelete={() => handleDeleteEmployee(employee.id)}
@@ -2154,20 +2073,20 @@ const Employees = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className={isDark ? "bg-gray-800 rounded-xl border border-gray-700 shadow-sm overflow-hidden" : "bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"}>
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className={isDark ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Employee</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Department</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Position</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Status</th>
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className={isDark ? "divide-y divide-gray-700 bg-gray-800" : "divide-y divide-gray-200 bg-white"}>
                 {filteredEmployees.map(employee => (
-                  <tr key={employee.id} className="hover:bg-gray-50">
+                  <tr key={employee.id} className={isDark ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         {employee.employeePhoto ? (
@@ -2176,22 +2095,24 @@ const Employees = () => {
                           <img src={employee.avatar} alt={employee.name} className="w-10 h-10 rounded-full" />
                         )}
                         <div className="ml-4">
-                          <div className="font-medium text-gray-900">{employee.name}</div>
-                          <div className="text-sm text-gray-500">{employee.email}</div>
+                          <div className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{employee.name}</div>
+                          <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>{employee.email}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full">
+                      <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                        isDark ? "bg-blue-900 text-blue-200" : "bg-blue-50 text-blue-700"
+                      }`}>
                         {employee.department}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-900">{employee.position}</td>
+                    <td className={`px-6 py-4 ${isDark ? "text-gray-300" : "text-gray-900"}`}>{employee.position}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                         employee.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
+                          ? (isDark ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800')
+                          : (isDark ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800')
                       }`}>
                         {employee.status}
                       </span>
@@ -2200,19 +2121,19 @@ const Employees = () => {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => setSelectedEmployee(employee)}
-                          className="text-blue-600 hover:text-blue-900"
+                          className={isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-900"}
                         >
                           View
                         </button>
                         <button
                           onClick={() => handleEditClick(employee)}
-                          className="text-green-600 hover:text-green-900"
+                          className={isDark ? "text-green-400 hover:text-green-300" : "text-green-600 hover:text-green-900"}
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteEmployee(employee.id)}
-                          className="text-red-600 hover:text-red-900"
+                          className={isDark ? "text-red-400 hover:text-red-300" : "text-red-600 hover:text-red-900"}
                         >
                           Delete
                         </button>
@@ -2230,11 +2151,11 @@ const Employees = () => {
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
               <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 115.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No employees found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+            <p className="text-gray-600">Add your first employee using the "Add New Employee" button</p>
           </div>
         )}
       </div>
@@ -2263,6 +2184,7 @@ const Employees = () => {
         prevStep={prevStep}
         handleAddEmployee={handleAddEmployee}
         handleCloseAddModal={handleCloseAddModal}
+        isDark={isDark}
       />
     </div>
   );

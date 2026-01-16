@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import TopNav from "../components/TopNav";
+import { useTheme } from "../context/ThemeContext";
 
 const AttendancePage = () => {
+  const { isDark } = useTheme();
   // State for filters
   const [dateRange, setDateRange] = useState({
     startDate: new Date().toISOString().split('T')[0],
@@ -285,22 +287,22 @@ const AttendancePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={isDark ? "min-h-screen bg-gray-900" : "min-h-screen bg-gray-50"}>
       <TopNav />
       
       <div className="p-4 md:p-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          <h1 className={isDark ? "text-2xl md:text-3xl font-bold text-white mb-2" : "text-2xl md:text-3xl font-bold text-gray-900 mb-2"}>
             ATTENDANCE MANAGEMENT
           </h1>
-          <p className="text-gray-600">
+          <p className={isDark ? "text-gray-400" : "text-gray-600"}>
             Manage biometric and manual attendance records
           </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="bg-white rounded-lg p-4 mb-6 border border-gray-200 shadow-sm">
+        <div className={isDark ? "bg-gray-800 rounded-lg p-4 mb-6 border border-gray-700 shadow-sm" : "bg-white rounded-lg p-4 mb-6 border border-gray-200 shadow-sm"}>
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setShowImportModal(true)}
@@ -345,42 +347,42 @@ const AttendancePage = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg p-4 mb-6 border border-gray-200 shadow-sm">
+        <div className={isDark ? "bg-gray-800 rounded-lg p-4 mb-6 border border-gray-700 shadow-sm" : "bg-white rounded-lg p-4 mb-6 border border-gray-200 shadow-sm"}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Date Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={`block text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"} mb-1`}>
                 Start Date
               </label>
               <input
                 type="date"
                 value={dateRange.startDate}
                 onChange={(e) => setDateRange(prev => ({...prev, startDate: e.target.value}))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className={isDark ? "w-full px-3 py-2 border border-gray-600 rounded-md text-sm bg-gray-700 text-white" : "w-full px-3 py-2 border border-gray-300 rounded-md text-sm"}
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={`block text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"} mb-1`}>
                 End Date
               </label>
               <input
                 type="date"
                 value={dateRange.endDate}
                 onChange={(e) => setDateRange(prev => ({...prev, endDate: e.target.value}))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className={isDark ? "w-full px-3 py-2 border border-gray-600 rounded-md text-sm bg-gray-700 text-white" : "w-full px-3 py-2 border border-gray-300 rounded-md text-sm"}
               />
             </div>
 
             {/* Employee Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={`block text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"} mb-1`}>
                 Employee
               </label>
               <select
                 value={selectedEmployee}
                 onChange={(e) => setSelectedEmployee(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className={isDark ? "w-full px-3 py-2 border border-gray-600 rounded-md text-sm bg-gray-700 text-white" : "w-full px-3 py-2 border border-gray-300 rounded-md text-sm"}
               >
                 <option value="">All Employees</option>
                 {employees.map(emp => (
@@ -393,13 +395,13 @@ const AttendancePage = () => {
 
             {/* Department Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={`block text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"} mb-1`}>
                 Department
               </label>
               <select
                 value={selectedDepartment}
                 onChange={(e) => setSelectedDepartment(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className={isDark ? "w-full px-3 py-2 border border-gray-600 rounded-md text-sm bg-gray-700 text-white" : "w-full px-3 py-2 border border-gray-300 rounded-md text-sm"}
               >
                 <option value="">All Departments</option>
                 {departments.map(dept => (
@@ -410,13 +412,13 @@ const AttendancePage = () => {
 
             {/* Source Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={`block text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"} mb-1`}>
                 Data Source
               </label>
               <select
                 value={attendanceSource}
                 onChange={(e) => setAttendanceSource(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className={isDark ? "w-full px-3 py-2 border border-gray-600 rounded-md text-sm bg-gray-700 text-white" : "w-full px-3 py-2 border border-gray-300 rounded-md text-sm"}
               >
                 <option value="all">All Sources</option>
                 <option value="biometric">Biometric Only</option>
@@ -429,23 +431,23 @@ const AttendancePage = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="text-xl font-bold text-blue-700">{summaryStats.totalPresent}</div>
-            <div className="text-sm text-gray-600">Present</div>
+          <div className={isDark ? "bg-blue-900/30 border border-blue-700 rounded-lg p-4" : "bg-blue-50 border border-blue-200 rounded-lg p-4"}>
+            <div className={isDark ? "text-xl font-bold text-blue-400" : "text-xl font-bold text-blue-700"}>{summaryStats.totalPresent}</div>
+            <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Present</div>
           </div>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="text-xl font-bold text-yellow-700">{summaryStats.totalLate}</div>
-            <div className="text-sm text-gray-600">Late</div>
+          <div className={isDark ? "bg-yellow-900/30 border border-yellow-700 rounded-lg p-4" : "bg-yellow-50 border border-yellow-200 rounded-lg p-4"}>
+            <div className={isDark ? "text-xl font-bold text-yellow-400" : "text-xl font-bold text-yellow-700"}>{summaryStats.totalLate}</div>
+            <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Late</div>
           </div>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="text-xl font-bold text-red-700">{summaryStats.totalAbsent}</div>
-            <div className="text-sm text-gray-600">Absent</div>
+          <div className={isDark ? "bg-red-900/30 border border-red-700 rounded-lg p-4" : "bg-red-50 border border-red-200 rounded-lg p-4"}>
+            <div className={isDark ? "text-xl font-bold text-red-400" : "text-xl font-bold text-red-700"}>{summaryStats.totalAbsent}</div>
+            <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Absent</div>
           </div>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="text-xl font-bold text-green-700">
+          <div className={isDark ? "bg-green-900/30 border border-green-700 rounded-lg p-4" : "bg-green-50 border border-green-200 rounded-lg p-4"}>
+            <div className={isDark ? "text-xl font-bold text-green-400" : "text-xl font-bold text-green-700"}>
               {summaryStats.totalWorkingHours.toFixed(2)}
             </div>
-            <div className="text-sm text-gray-600">Working Hours</div>
+            <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Working Hours</div>
           </div>
         </div>
 
@@ -453,68 +455,66 @@ const AttendancePage = () => {
         <div className="flex flex-wrap gap-4 mb-4">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span className="text-sm">Biometric ({summaryStats.biometricCount})</span>
+            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-900"}`}>Biometric ({summaryStats.biometricCount})</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span className="text-sm">Manual ({summaryStats.manualCount})</span>
+            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-900"}`}>Manual ({summaryStats.manualCount})</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-            <span className="text-sm">Hybrid ({summaryStats.hybridCount})</span>
+            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-900"}`}>Hybrid ({summaryStats.hybridCount})</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span className="text-sm">Payroll Locked</span>
+            <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-900"}`}>Payroll Locked</span>
           </div>
         </div>
 
         {/* Attendance Table */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div className={isDark ? "bg-gray-800 rounded-lg border border-gray-700 shadow-sm overflow-hidden" : "bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"}>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className={isDark ? "min-w-full divide-y divide-gray-700" : "min-w-full divide-y divide-gray-200"}>
+              <thead className={isDark ? "bg-gray-700" : "bg-gray-50"}>
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check-In</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check-Out</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Working Hours</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Overtime</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Source</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remarks</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Employee</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Date</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Check-In</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Check-Out</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Working Hours</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Overtime</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Status</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Source</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Remarks</th>
+                  <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className={isDark ? "bg-gray-800 divide-y divide-gray-700" : "bg-white divide-y divide-gray-200"}>
                 {filteredRecords.map(record => (
-                  <tr key={record.id} className={`hover:bg-gray-50 ${
-                    record.payrollLocked ? 'bg-red-50' : ''
-                  }`}>
+                  <tr key={record.id} className={isDark ? `hover:bg-gray-700 ${record.payrollLocked ? 'bg-red-900/30' : ''}` : `hover:bg-gray-50 ${record.payrollLocked ? 'bg-red-50' : ''}`}>
                     <td className="px-4 py-3">
                       <div>
-                        <div className="font-medium">{record.employeeName}</div>
-                        <div className="text-xs text-gray-500">{record.department}</div>
+                        <div className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{record.employeeName}</div>
+                        <div className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}>{record.department}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">{record.date}</td>
-                    <td className="px-4 py-3">{record.checkIn || '-'}</td>
-                    <td className="px-4 py-3">{record.checkOut || '-'}</td>
-                    <td className="px-4 py-3">
+                    <td className={`px-4 py-3 ${isDark ? "text-gray-300" : "text-gray-900"}`}>{record.date}</td>
+                    <td className={`px-4 py-3 ${isDark ? "text-gray-300" : "text-gray-900"}`}>{record.checkIn || '-'}</td>
+                    <td className={`px-4 py-3 ${isDark ? "text-gray-300" : "text-gray-900"}`}>{record.checkOut || '-'}</td>
+                    <td className={`px-4 py-3 ${isDark ? "text-gray-300" : "text-gray-900"}`}>
                       <span className="font-medium">{record.workingHours}</span> hrs
                     </td>
                     <td className="px-4 py-3">
                       {record.overtime > 0 ? (
-                        <span className="text-green-600 font-medium">{record.overtime} hrs</span>
-                      ) : '-'}
+                        <span className={isDark ? "text-green-400 font-medium" : "text-green-600 font-medium"}>{record.overtime} hrs</span>
+                      ) : <span className={isDark ? "text-gray-400" : "text-gray-600"}>-</span>}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                        record.status === 'present' ? 'bg-green-100 text-green-800' :
-                        record.status === 'late' ? 'bg-yellow-100 text-yellow-800' :
-                        record.status === 'half-day' ? 'bg-blue-100 text-blue-800' :
-                        'bg-red-100 text-red-800'
+                        record.status === 'present' ? (isDark ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800') :
+                        record.status === 'late' ? (isDark ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800') :
+                        record.status === 'half-day' ? (isDark ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800') :
+                        (isDark ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800')
                       }`}>
                         {record.status}
                       </span>
@@ -526,10 +526,10 @@ const AttendancePage = () => {
                           record.source === 'manual' ? 'bg-blue-500' :
                           'bg-purple-500'
                         }`}></div>
-                        <span className="text-sm">{record.source}</span>
+                        <span className={`text-sm ${isDark ? "text-gray-300" : "text-gray-900"}`}>{record.source}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 max-w-xs truncate">{record.remarks}</td>
+                    <td className={`px-4 py-3 max-w-xs truncate ${isDark ? "text-gray-300" : "text-gray-900"}`}>{record.remarks}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         {!record.payrollLocked && (
@@ -543,7 +543,7 @@ const AttendancePage = () => {
                                 });
                                 setShowManualEntryModal(true);
                               }}
-                              className="text-blue-600 hover:text-blue-800"
+                              className={isDark ? "text-blue-400 hover:text-blue-300 hover:bg-gray-700 p-1 rounded" : "text-blue-600 hover:text-blue-800 hover:bg-gray-100 p-1 rounded"}
                               title="Edit"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -557,7 +557,7 @@ const AttendancePage = () => {
                                   logAudit('DELETE', `Deleted attendance for ${record.employeeName} on ${record.date}`);
                                 }
                               }}
-                              className="text-red-600 hover:text-red-800"
+                              className={isDark ? "text-red-400 hover:text-red-300 hover:bg-gray-700 p-1 rounded" : "text-red-600 hover:text-red-800 hover:bg-gray-100 p-1 rounded"}
                               title="Delete"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -567,7 +567,7 @@ const AttendancePage = () => {
                           </>
                         )}
                         {record.payrollLocked && (
-                          <span className="text-xs text-red-600">Locked</span>
+                          <span className={isDark ? "text-xs text-red-400" : "text-xs text-red-600"}>Locked</span>
                         )}
                       </div>
                     </td>
@@ -900,42 +900,42 @@ const AttendancePage = () => {
         {/* Audit Log Modal */}
         {showAuditModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className={isDark ? "bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-700" : "bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto"}>
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold">Attendance Audit Log</h3>
-                  <button onClick={() => setShowAuditModal(false)} className="text-gray-500 hover:text-gray-700">
+                  <h3 className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>Attendance Audit Log</h3>
+                  <button onClick={() => setShowAuditModal(false)} className={isDark ? "text-gray-400 hover:text-gray-300" : "text-gray-500 hover:text-gray-700"}>
                     ✕
                   </button>
                 </div>
                 
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className={isDark ? "min-w-full divide-y divide-gray-700" : "min-w-full divide-y divide-gray-200"}>
+                    <thead className={isDark ? "bg-gray-700" : "bg-gray-50"}>
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP Address</th>
+                        <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Timestamp</th>
+                        <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Action</th>
+                        <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>Description</th>
+                        <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>User</th>
+                        <th className={isDark ? "px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase" : "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"}>IP Address</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className={isDark ? "bg-gray-800 divide-y divide-gray-700" : "bg-white divide-y divide-gray-200"}>
                       {auditLogs.map(log => (
-                        <tr key={log.id}>
-                          <td className="px-4 py-3 text-sm">{new Date(log.timestamp).toLocaleString()}</td>
+                        <tr key={log.id} className={isDark ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
+                          <td className={`px-4 py-3 text-sm ${isDark ? "text-gray-300" : "text-gray-900"}`}>{new Date(log.timestamp).toLocaleString()}</td>
                           <td className="px-4 py-3">
                             <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                              log.action === 'CREATE' ? 'bg-green-100 text-green-800' :
-                              log.action === 'UPDATE' ? 'bg-blue-100 text-blue-800' :
-                              'bg-red-100 text-red-800'
+                              log.action === 'CREATE' ? (isDark ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-800') :
+                              log.action === 'UPDATE' ? (isDark ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800') :
+                              (isDark ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800')
                             }`}>
                               {log.action}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-sm">{log.description}</td>
-                          <td className="px-4 py-3 text-sm">{log.userId}</td>
-                          <td className="px-4 py-3 text-sm">{log.ipAddress}</td>
+                          <td className={`px-4 py-3 text-sm ${isDark ? "text-gray-300" : "text-gray-900"}`}>{log.description}</td>
+                          <td className={`px-4 py-3 text-sm ${isDark ? "text-gray-300" : "text-gray-900"}`}>{log.userId}</td>
+                          <td className={`px-4 py-3 text-sm ${isDark ? "text-gray-300" : "text-gray-900"}`}>{log.ipAddress}</td>
                         </tr>
                       ))}
                     </tbody>
