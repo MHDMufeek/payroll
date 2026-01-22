@@ -7,6 +7,7 @@ import Attendance from "./pages/Attendance";
 import Payroll from "./pages/Payroll";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import LeaveManagement from "./pages/leave";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/payroll" element={<Payroll />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/leave" element={<LeaveManagement />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
