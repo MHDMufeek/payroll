@@ -31,7 +31,7 @@ const TopNav = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 shadow-xl">
+    <nav className={isDark ? "bg-gray-800 shadow-xl" : "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 shadow-xl"}>
       <div className="px-6 py-3">
         <div className="flex items-center justify-between">
           {/* Left side: Logo */}

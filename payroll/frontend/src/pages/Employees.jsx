@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import axios from 'axios';
 import TopNav from "../components/TopNav";
 import { useTheme } from "../context/ThemeContext";
 
@@ -277,7 +278,7 @@ const AddEmployeeForm = React.memo(({
                         <option value="Diploma">Diploma</option>
                         <option value="Advanced Level">Advanced Level (A/L)</option>
                         <option value="Ordinary Level">Ordinary Level (O/L)</option>
-                        <option value="Certificate">Certificate</option>
+                        
                       </select>
                       {formErrors.highestQualification && (
                         <p className="text-red-500 text-xs mt-1">{formErrors.highestQualification}</p>
@@ -462,10 +463,10 @@ const AddEmployeeForm = React.memo(({
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Basic Salary (USD) *
+                        Basic Salary (Rs) *
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2 text-gray-500">$</span>
+                        <span className="absolute left-3 top-2 text-gray-500">Rs </span>
                         <input
                           type="number"
                           name="basicSalary"
@@ -474,7 +475,7 @@ const AddEmployeeForm = React.memo(({
                           className={`w-full pl-7 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                             formErrors.basicSalary ? 'border-red-500' : 'border-gray-300'
                           }`}
-                          placeholder="0.00"
+                          placeholder=" 0.00"
                           min="0"
                           step="0.01"
                         />
@@ -486,17 +487,17 @@ const AddEmployeeForm = React.memo(({
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Allowances (USD)
+                        Allowances (Rs)
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2 text-gray-500">$</span>
+                        <span className="absolute left-3 top-2 text-gray-500">RS</span>
                         <input
                           type="number"
                           name="allowances"
                           value={formData.allowances || ''}
                           onChange={handleFormChange}
                           className="w-full pl-7 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="0.00"
+                          placeholder=" 0.00"
                           min="0"
                           step="0.01"
                         />
@@ -1158,102 +1159,12 @@ const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete, isDark })
 
 const Employees = () => {
   const { isDark } = useTheme();
-  // Start with sample employee data
-  const initialEmployees = [
-    {
-      id: '001',
-      name: 'John Doe',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@company.com',
-      department: 'IT',
-      position: 'Software Engineer',
-      hireDate: '2023-01-15',
-      salary: '$75,000',
-      status: 'active',
-      performance: 4.5,
-      dateOfBirth: '1990-05-20',
-      gender: 'Male',
-      nicNumber: '901234567V',
-      mobile: '+94 77 123 4567',
-      permanentAddress: '123 Main St, Colombo',
-      highestQualification: 'Bachelor of Science',
-      designation: 'Software Engineer',
-      dateOfJoining: '2023-01-15',
-      basicSalary: '75000',
-      epfNumber: 'EPF001',
-      etfNumber: 'ETF001',
-      bankName: 'Bank of Ceylon',
-      branch: 'Colombo Main',
-      accountNumber: '1234567890',
-      accountType: 'Savings',
-      accountHolderName: 'John Doe',
-      skills: ['JavaScript', 'React', 'Node.js']
-    },
-    {
-      id: '002',
-      name: 'Jane Smith',
-      firstName: 'Jane',
-      lastName: 'Smith',
-      email: 'jane@company.com',
-      department: 'HR',
-      position: 'HR Manager',
-      hireDate: '2022-03-10',
-      salary: '$65,000',
-      status: 'active',
-      performance: 4.2,
-      dateOfBirth: '1985-08-15',
-      gender: 'Female',
-      nicNumber: '851234567V',
-      mobile: '+94 77 234 5678',
-      permanentAddress: '456 Oak Ave, Colombo',
-      highestQualification: 'Master of Business Administration',
-      designation: 'HR Manager',
-      dateOfJoining: '2022-03-10',
-      basicSalary: '65000',
-      epfNumber: 'EPF002',
-      etfNumber: 'ETF002',
-      bankName: 'People\'s Bank',
-      branch: 'Colombo Branch',
-      accountNumber: '2345678901',
-      accountType: 'Savings',
-      accountHolderName: 'Jane Smith',
-      skills: ['HR Management', 'Recruitment', 'Employee Relations']
-    },
-    {
-      id: '003',
-      name: 'Bob Johnson',
-      firstName: 'Bob',
-      lastName: 'Johnson',
-      email: 'bob@company.com',
-      department: 'Finance',
-      position: 'Financial Analyst',
-      hireDate: '2023-06-01',
-      salary: '$70,000',
-      status: 'active',
-      performance: 4.0,
-      dateOfBirth: '1992-12-10',
-      gender: 'Male',
-      nicNumber: '921234567V',
-      mobile: '+94 77 345 6789',
-      permanentAddress: '789 Pine Rd, Colombo',
-      highestQualification: 'Bachelor of Commerce',
-      designation: 'Financial Analyst',
-      dateOfJoining: '2023-06-01',
-      basicSalary: '70000',
-      epfNumber: 'EPF003',
-      etfNumber: 'ETF003',
-      bankName: 'Commercial Bank',
-      branch: 'Colombo Central',
-      accountNumber: '3456789012',
-      accountType: 'Savings',
-      accountHolderName: 'Bob Johnson',
-      skills: ['Financial Analysis', 'Excel', 'Accounting']
-    }
-  ];
+  // No example employees — start with empty list
+  const initialEmployees = [];
 
   // State Management
   const [employees, setEmployees] = useState(initialEmployees);
+  const [loading, setLoading] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -1407,6 +1318,49 @@ const Employees = () => {
       }));
     }
   }, [isAddModalOpen]);
+
+  // Fetch employees from backend on mount
+  useEffect(() => {
+    let mounted = true;
+    const fetchEmployees = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get('http://localhost:5000/employees');
+        if (mounted) {
+          // Map backend rows to UI shape
+          const data = res.data.map(row => ({
+            id: row.id,
+            name: row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim(),
+            firstName: row.first_name,
+            lastName: row.last_name,
+            email: row.email,
+            department: row.department,
+            position: row.position,
+            hireDate: row.hire_date,
+            salary: row.basic_salary ? `$${parseFloat(row.basic_salary).toLocaleString()}` : undefined,
+            status: row.status,
+            employeePhoto: row.documents ? (JSON.parse(row.documents).employeePhoto || null) : null,
+            cvDocument: row.documents ? (JSON.parse(row.documents).cvDocument || null) : null,
+            additionalDocuments: row.documents ? (JSON.parse(row.documents).additionalDocuments || []) : [],
+            personalInfo: row.personal_info ? JSON.parse(row.personal_info) : null,
+            qualifications: row.qualifications ? JSON.parse(row.qualifications) : null,
+            jobDetails: row.job_details ? JSON.parse(row.job_details) : null,
+            epfEtfDetails: row.epf_etf ? JSON.parse(row.epf_etf) : null,
+            bankDetails: row.bank_details ? JSON.parse(row.bank_details) : null,
+            skills: row.skills ? JSON.parse(row.skills) : []
+          }));
+          setEmployees(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch employees:', err.response?.data || err.message || err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees();
+    return () => { mounted = false; };
+  }, []);
 
   // Use useCallback for form handlers to prevent unnecessary re-renders
   const handleFormChange = useCallback((e) => {
@@ -1620,11 +1574,60 @@ const Employees = () => {
           }
         };
 
+        // Prepare payload to send to backend
+        const payload = {
+          employeeId: finalData.employeeId || finalData.employee_id,
+          firstName: finalData.firstName,
+          lastName: finalData.lastName,
+          name: `${finalData.firstName} ${finalData.lastName}`.trim(),
+          email: finalData.email,
+          mobile: finalData.mobile,
+          department: finalData.department,
+          position: finalData.designation,
+          hireDate: finalData.dateOfJoining || finalData.hireDate,
+          dateOfBirth: finalData.dateOfBirth,
+          gender: finalData.gender,
+          nicNumber: finalData.nicNumber,
+          basicSalary: finalData.basicSalary,
+          allowances: finalData.allowances,
+          grossSalary: finalData.grossSalary || grossSalary,
+          status: 'active',
+          epfNumber: finalData.epfNumber,
+          etfNumber: finalData.etfNumber,
+          bankDetails: finalData.bankDetails || finalData.bank_details || null,
+          personalInfo: finalData.personalInfo || {
+            firstName: finalData.firstName,
+            lastName: finalData.lastName,
+            dateOfBirth: finalData.dateOfBirth,
+            gender: finalData.gender,
+            nicNumber: finalData.nicNumber,
+            address: finalData.permanentAddress
+          },
+          qualifications: finalData.qualifications || null,
+          jobDetails: finalData.jobDetails || null,
+          epfEtf: finalData.epfEtf || null,
+          documents: {
+            employeePhoto: employeePhotoBase64 || null,
+            cvDocument: cvDocumentBase64 ? { name: formData.cvDocument?.name, data: cvDocumentBase64 } : null,
+            additionalDocuments: additionalDocsBase64
+          },
+          skills: skills
+        };
+
+        // Send to backend
+        try {
+          await axios.post('http://localhost:5000/employees', payload);
+        } catch (err) {
+          console.error('Failed to save employee to backend:', err.response?.data || err.message || err);
+          alert('Failed to save employee to server. See console for details.');
+          return;
+        }
+
+        // Update local UI after successful save
         setEmployees([...employees, newEmployee]);
         resetForm();
         setIsAddModalOpen(false);
         setCurrentStep(1);
-        
         alert('Employee added successfully!');
       };
 
@@ -1703,14 +1706,20 @@ const Employees = () => {
     setIsAddModalOpen(false);
   }, [resetForm]);
 
-  const handleDeleteEmployee = useCallback((id) => {
-    if (window.confirm('Are you sure you want to delete this employee?')) {
-      setEmployees(employees.filter(emp => emp.id !== id));
+  const handleDeleteEmployee = useCallback(async (id) => {
+    if (!window.confirm('Are you sure you want to delete this employee?')) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/employees/${id}`);
+      setEmployees(prev => prev.filter(emp => emp.id !== id));
       if (selectedEmployee && selectedEmployee.id === id) {
         setSelectedEmployee(null);
       }
+    } catch (err) {
+      console.error('Failed to delete employee:', err.response?.data || err.message || err);
+      alert('Failed to delete employee on server. See console for details.');
     }
-  }, [employees, selectedEmployee]);
+  }, [selectedEmployee]);
 
   const handleEditClick = useCallback((employee) => {
     setSelectedEmployee(employee);

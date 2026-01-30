@@ -79,6 +79,9 @@ app.post("/change-password", async (req, res) => {
   }
 });
 
+// Employees routes mounted from routes/employees.js
+app.use('/employees', require('./routes/employees'));
+
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

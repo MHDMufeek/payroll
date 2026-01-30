@@ -17,7 +17,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className={isDark ? "min-h-screen bg-gray-900 text-white" : "min-h-screen bg-white"}>
       <TopNav />
       
       <div className="p-6">

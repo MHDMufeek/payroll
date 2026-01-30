@@ -1,23 +1,6 @@
-CREATE DATABASE IF NOT EXISTS mypayroll;
-USE mypayroll;
+const db = require('../db');
 
-CREATE TABLE hr_users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-INSERT INTO hr_users (username, password, email)
-VALUES (
-  'admin',
-  '$2b$10$vQVcqzZ0weZxPSjBReY47ueSwztBYP/usZ.jQ2wPTFBMWFJJbvFn.',
-  'admin@company.com'
-);
-
--- Employees table to support Employees page
-CREATE TABLE IF NOT EXISTS employees (
+const sql = `CREATE TABLE IF NOT EXISTS employees (
   id INT AUTO_INCREMENT PRIMARY KEY,
   employee_id VARCHAR(50) UNIQUE,
   first_name VARCHAR(100),
@@ -45,7 +28,13 @@ CREATE TABLE IF NOT EXISTS employees (
   documents JSON,
   skills JSON,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+);`;
 
--- Sample employees
--- (Removed sample INSERTs to clear example data)
+db.query(sql, (err, result) => {
+  if (err) {
+    console.error('Failed to create employees table:', err.message || err);
+    process.exit(1);
+  }
+  console.log('`employees` table ensured (created if missing).');
+  process.exit(0);
+});
