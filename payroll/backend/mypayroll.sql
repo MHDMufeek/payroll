@@ -47,5 +47,16 @@ CREATE TABLE IF NOT EXISTS employees (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Departments table to support Department page
+CREATE TABLE IF NOT EXISTS departments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  manager VARCHAR(150),
+  employee_count INT DEFAULT 0,
+  payroll_budget DECIMAL(12,2) DEFAULT 0,
+  status VARCHAR(50) DEFAULT 'Active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Sample employees
 -- (Removed sample INSERTs to clear example data)

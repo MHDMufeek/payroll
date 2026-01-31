@@ -92,38 +92,38 @@ const TopNav = () => {
                 </svg>
               </button>
               {/* Notification Dropdown */}
-              <div className="absolute right-0 mt-2 w-80 bg-gradient-to-b from-white to-gray-50 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+              <div className="absolute right-0 mt-2 w-80 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                 <div className="p-4">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-gray-900">Notifications</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
                     <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">3 New</span>
                   </div>
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-3 p-2 bg-blue-50 rounded-lg">
+                    <div className="flex items-center space-x-3 p-2 bg-blue-50 dark:bg-gray-800 rounded-lg">
                       <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm">💼</span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">New employee added</p>
-                        <p className="text-xs text-gray-500">Just now</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">New employee added</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Just now</p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3 p-2 bg-green-50 rounded-lg">
+                    <div className="flex items-center space-x-3 p-2 bg-green-50 dark:bg-gray-800 rounded-lg">
                       <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm">💰</span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">Payroll processed</p>
-                        <p className="text-xs text-gray-500">5 mins ago</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">Payroll processed</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">5 mins ago</p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3 p-2 bg-purple-50 rounded-lg">
+                    <div className="flex items-center space-x-3 p-2 bg-purple-50 dark:bg-gray-800 rounded-lg">
                       <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm">📊</span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">Monthly report ready</p>
-                        <p className="text-xs text-gray-500">1 hour ago</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">Monthly report ready</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">1 hour ago</p>
                       </div>
                     </div>
                   </div>
@@ -145,15 +145,15 @@ const TopNav = () => {
                   JD
                 </div>
                 {/* User Menu Dropdown */}
-                <div className={`absolute right-0 mt-2 w-48 bg-gradient-to-b from-white to-gray-50 rounded-xl shadow-2xl transition-all duration-300 z-50 ${dropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                <div className={`absolute right-0 mt-2 w-48 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-2xl transition-all duration-300 z-50 ${dropdownOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
                   <div className="p-3">
                     <div className="flex items-center space-x-3 p-2 mb-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg">
                       <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
                         JD
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-900">John Doe</p>
-                        <p className="text-xs text-gray-500">john@crextio.com</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">John Doe</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">john@crextio.com</p>
                       </div>
                     </div>
                     <div className="space-y-1">

@@ -1,17 +1,13 @@
 // Department.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from 'axios';
 import TopNav from "../components/TopNav";
 import { useTheme } from "../context/ThemeContext";
 
 const Department = () => {
   const { isDark } = useTheme();
   const [departments, setDepartments] = useState([
-    { id: 1, name: "Human Resources", manager: "John Doe", employeeCount: 12, payrollBudget: "₹450,000", status: "Active" },
-    { id: 2, name: "Information Technology", manager: "Jane Smith", employeeCount: 18, payrollBudget: "₹650,000", status: "Active" },
-    { id: 3, name: "Finance", manager: "Robert Johnson", employeeCount: 8, payrollBudget: "₹350,000", status: "Active" },
-    { id: 4, name: "Marketing", manager: "Sarah Williams", employeeCount: 10, payrollBudget: "₹400,000", status: "Active" },
-    { id: 5, name: "Operations", manager: "Michael Brown", employeeCount: 15, payrollBudget: "₹550,000", status: "Active" },
-    { id: 6, name: "Sales", manager: "Lisa Anderson", employeeCount: 14, payrollBudget: "₹500,000", status: "Inactive" },
+   
   ]);
 
   const [showModal, setShowModal] = useState(false);
@@ -36,41 +32,86 @@ const Department = () => {
 
   const handleEditDepartment = (dept) => {
     setEditingDepartment(dept);
-    setFormData(dept);
+    setFormData({
+      name: dept.name,
+      manager: dept.manager,
+      payrollBudget: dept.payrollBudget,
+      status: dept.status
+    });
     setShowModal(true);
   };
 
-  const handleDeleteDepartment = (id) => {
-    if (window.confirm("Are you sure you want to delete this department?")) {
+  const handleDeleteDepartment = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this department?")) return;
+    try {
+      await axios.delete(`http://localhost:5000/departments/${id}`);
       setDepartments(departments.filter(dept => dept.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete department');
     }
   };
 
-  const handleSubmit = (e) => {
+  const parseCurrencyToNumber = (str) => {
+    if (!str) return 0;
+    const num = str.replace(/[^0-9.]/g, '');
+    return parseFloat(num) || 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingDepartment) {
-      // Update existing department
-      setDepartments(departments.map(dept => 
-        dept.id === editingDepartment.id ? { ...formData, id: dept.id, employeeCount: dept.employeeCount } : dept
-      ));
-    } else {
-      // Add new department
-      const newDept = {
-        id: departments.length + 1,
-        ...formData,
-        employeeCount: 0
-      };
-      setDepartments([...departments, newDept]);
+
+    const payload = {
+      name: formData.name,
+      manager: formData.manager,
+      employee_count: editingDepartment ? (editingDepartment.employeeCount || 0) : 0,
+      payroll_budget: parseCurrencyToNumber(formData.payrollBudget),
+      status: formData.status
+    };
+
+    try {
+      if (editingDepartment) {
+        await axios.put(`http://localhost:5000/departments/${editingDepartment.id}`, payload);
+        setDepartments(departments.map(d => d.id === editingDepartment.id ? { ...d, name: payload.name, manager: payload.manager, payrollBudget: `₹${Number(payload.payroll_budget).toLocaleString()}`, employeeCount: payload.employee_count, status: payload.status } : d));
+      } else {
+        const res = await axios.post('http://localhost:5000/departments', payload);
+        const createdId = res.data.id;
+        const newDept = { id: createdId, name: payload.name, manager: payload.manager, payrollBudget: `₹${Number(payload.payroll_budget).toLocaleString()}`, employeeCount: payload.employee_count, status: payload.status };
+        setDepartments([...departments, newDept]);
+      }
+      setShowModal(false);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save department');
     }
-    setShowModal(false);
   };
 
   const totalBudget = departments.reduce((sum, dept) => {
-    const budget = parseInt(dept.payrollBudget.replace(/[₹,]/g, '')) || 0;
-    return sum + budget;
+    const budget = (typeof dept.payrollBudget === 'string') ? parseInt(dept.payrollBudget.replace(/[₹,]/g, '')) : Math.round((dept.payrollBudget || 0));
+    return sum + (budget || 0);
   }, 0);
 
   const totalEmployees = departments.reduce((sum, dept) => sum + dept.employeeCount, 0);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/departments');
+        const mapped = res.data.map(d => ({
+          id: d.id,
+          name: d.name,
+          manager: d.manager,
+          employeeCount: d.employee_count,
+          payrollBudget: `₹${Number(d.payroll_budget).toLocaleString()}`,
+          status: d.status
+        }));
+        setDepartments(mapped);
+      } catch (err) {
+        console.error('Failed to fetch departments', err);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   return (
     <div className={isDark ? "min-h-screen bg-gray-900" : "min-h-screen bg-gray-50"}>
@@ -228,7 +269,7 @@ const Department = () => {
         {/* Department Distribution Chart */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Employee Distribution</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Employee Distribution</h3>
             <div className="space-y-4">
               {departments.map((dept) => {
                 const percentage = (dept.employeeCount / totalEmployees) * 100;
@@ -256,14 +297,14 @@ const Department = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Payroll Budget Allocation</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payroll Budget Allocation</h3>
             <div className="space-y-4">
               {departments.map((dept) => {
                 const budget = parseInt(dept.payrollBudget.replace(/[₹,]/g, '')) || 0;
                 const percentage = (budget / totalBudget) * 100;
                 return (
-                  <div key={dept.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                  <div key={dept.id} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
                     <div className="flex items-center space-x-3">
                       <div className={`w-3 h-3 rounded-full ${
                         dept.id === 1 ? "bg-blue-500" :
@@ -275,8 +316,8 @@ const Department = () => {
                       <span className="font-medium text-gray-700">{dept.name}</span>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-gray-900">{dept.payrollBudget}</p>
-                      <p className="text-sm text-gray-500">{percentage.toFixed(1)}% of total</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{dept.payrollBudget}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{percentage.toFixed(1)}% of total</p>
                     </div>
                   </div>
                 );
@@ -289,9 +330,9 @@ const Department = () => {
       {/* Modal for Add/Edit Department */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-md">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md">
             <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingDepartment ? "Edit Department" : "Add New Department"}
               </h3>
             </div>
@@ -307,7 +348,7 @@ const Department = () => {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     placeholder="Enter department name"
                   />
                 </div>
@@ -320,7 +361,7 @@ const Department = () => {
                     type="text"
                     value={formData.manager}
                     onChange={(e) => setFormData({...formData, manager: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     placeholder="Enter manager name"
                   />
                 </div>
@@ -336,7 +377,7 @@ const Department = () => {
                       required
                       value={formData.payrollBudget}
                       onChange={(e) => setFormData({...formData, payrollBudget: e.target.value})}
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                       placeholder="Enter budget amount"
                     />
                   </div>
@@ -361,7 +402,7 @@ const Department = () => {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancel
                 </button>
