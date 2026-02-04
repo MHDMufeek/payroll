@@ -58,5 +58,20 @@ CREATE TABLE IF NOT EXISTS departments (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Leaves table to support Apply Leave page
+CREATE TABLE IF NOT EXISTS leaves (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(200),
+  emp_id VARCHAR(100),
+  email VARCHAR(150),
+  from_date DATE,
+  to_date DATE,
+  reason TEXT,
+  status ENUM('pending','approved','rejected') DEFAULT 'pending',
+  processed_by INT NULL,
+  processed_at TIMESTAMP NULL,
+  submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Sample employees
 -- (Removed sample INSERTs to clear example data)

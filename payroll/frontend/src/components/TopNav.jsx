@@ -23,6 +23,7 @@ const TopNav = () => {
     { label: "Attendance", path: "/attendance", color: "from-purple-500 to-pink-500" },
     { label: "Payroll", path: "/payroll", color: "from-yellow-500 to-amber-500" },
     { label: "Reports", path: "/reports", color: "from-cyan-500 to-blue-500" },
+     { label: "Leave", path: "/leave", color: "from-cyan-500 to-blue-500" },
   ];
 
   const isActive = (path) => {
