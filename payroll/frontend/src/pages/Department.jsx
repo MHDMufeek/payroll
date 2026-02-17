@@ -339,8 +339,9 @@ const Department = () => {
             
             <form onSubmit={handleSubmit} className="p-6">
               <div className="space-y-4">
+                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                     Department Name *
                   </label>
                   <input
@@ -354,7 +355,7 @@ const Department = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                     Department Manager
                   </label>
                   <input
@@ -367,11 +368,11 @@ const Department = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                     Monthly Payroll Budget *
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2 text-gray-500">₹</span>
+                    <span className="absolute left-3 top-2 text-gray-500 dark:text-gray-400">₹</span>
                     <input
                       type="text"
                       required
@@ -384,13 +385,13 @@ const Department = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                     Status
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({...formData, status: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   >
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>

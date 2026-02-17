@@ -41,8 +41,8 @@ const TopNav = () => {
               <span className="text-white text-2xl">🏢</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white drop-shadow-lg">CREXTIO</h1>
-              <p className="text-sm text-cyan-100 font-medium">HR Management System</p>
+              <h1 className="text-2xl font-bold text-white drop-shadow-lg">Nexora Solutions</h1>
+              <p className="text-sm text-cyan-100 font-medium">Smart Software & Digital Services</p>
             </div>
           </div>
 

@@ -85,15 +85,17 @@ const AddEmployeeForm = React.memo(({
             {/* Step 1: Personal Information */}
             {currentStep === 1 && (
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+               <label><h3 className="text-lg font-semibold text-gray-900 border-b dark:text-white pb-2">
+                  
                   Personal Information
-                </h3>
+                </h3></label> 
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Left Column */}
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
+                         
                         First Name *
                       </label>
                       <input
@@ -111,7 +113,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Last Name *
                       </label>
                       <input
@@ -129,7 +131,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Date of Birth *
                       </label>
                       <input
@@ -147,7 +149,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Gender *
                       </label>
                       <select
@@ -172,7 +174,7 @@ const AddEmployeeForm = React.memo(({
                   {/* Right Column */}
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Email *
                       </label>
                       <input
@@ -191,7 +193,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Mobile Number *
                       </label>
                       <input
@@ -210,7 +212,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         NIC Number *
                       </label>
                       <input
@@ -229,7 +231,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Permanent Address *
                       </label>
                       <textarea
@@ -260,7 +262,7 @@ const AddEmployeeForm = React.memo(({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Highest Qualification *
                       </label>
                       <select
@@ -286,7 +288,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         University/Institution
                       </label>
                       <input
@@ -299,7 +301,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Year of Graduation
                       </label>
                       <input
@@ -316,7 +318,7 @@ const AddEmployeeForm = React.memo(({
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Degree/Field of Study
                       </label>
                       <input
@@ -329,7 +331,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Professional Qualifications
                       </label>
                       <textarea
@@ -343,7 +345,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Technical Skills
                       </label>
                       <textarea
@@ -531,7 +533,9 @@ const AddEmployeeForm = React.memo(({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
+                         
+                        
                         EPF Number *
                       </label>
                       <input
@@ -550,7 +554,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         ETF Number *
                       </label>
                       <input
@@ -569,7 +573,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         EPF Start Date
                       </label>
                       <input
@@ -585,7 +589,7 @@ const AddEmployeeForm = React.memo(({
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                           Employee EPF Rate (%)
                         </label>
                         <div className="relative">
@@ -604,7 +608,7 @@ const AddEmployeeForm = React.memo(({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                           Employer EPF Rate (%)
                         </label>
                         <div className="relative">
@@ -624,7 +628,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         ETF Rate (%)
                       </label>
                       <div className="relative">
@@ -643,7 +647,7 @@ const AddEmployeeForm = React.memo(({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         EPF Contribution Type
                       </label>
                       <select
@@ -665,14 +669,14 @@ const AddEmployeeForm = React.memo(({
             {/* Step 5: Bank Details */}
             {currentStep === 5 && (
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                <h3 className="text-lg font-semibold text-gray-900 border-b dark:text-white pb-2">
                   Bank Details
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                         Bank Name *
                       </label>
                       <select
