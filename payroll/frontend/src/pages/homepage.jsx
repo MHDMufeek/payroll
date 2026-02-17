@@ -1,230 +1,114 @@
-// src/components/LandingPage.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import LogoSvg from '../assets/react.svg';
 
-// Inline lightweight SVG components to avoid adding @heroicons/react dependency
-const BuildingOffice2Icon = (props) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
-    <rect x="3" y="4" width="18" height="16" rx="2" strokeWidth="1.5" />
-    <path d="M8 12h8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+const HomePage = () => {
+  const company = 'Nexora Solutions';
 
-const CalendarDaysIcon = (props) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
-    <rect x="3" y="5" width="18" height="16" rx="2" strokeWidth="1.5" />
-    <path d="M16 3v4M8 3v4M3 11h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const ArrowRightIcon = (props) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
-    <path d="M5 12h14M13 5l6 7-6 7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const UserGroupIcon = (props) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
-    <path d="M17 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <circle cx="12" cy="7" r="4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const ShieldCheckIcon = (props) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
-    <path d="M12 2l7 4v5c0 5-3.58 9-7 11-3.42-2-7-6-7-11V6l7-4z" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M9 12l2 2 4-4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const ChartBarIcon = (props) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
-    <path d="M3 3v18h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <rect x="7" y="10" width="2" height="7" rx="1" strokeWidth="1.5" />
-    <rect x="11" y="7" width="2" height="10" rx="1" strokeWidth="1.5" />
-    <rect x="15" y="4" width="2" height="13" rx="1" strokeWidth="1.5" />
-  </svg>
-);
-
-const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <BuildingOffice2Icon className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-800">LeaveTrack</span>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-50 to-indigo-50 flex flex-col text-slate-800">
+      <header className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg">
+        <div className="container mx-auto px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 rounded-lg bg-white shadow-md flex items-center justify-center">
+              <img src={LogoSvg} alt="logo" className="w-8 h-8" />
             </div>
-            <div className="flex items-center space-x-4">
-              <Link 
-                to="/login" 
-                className="px-4 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg transition"
-              >
-                Sign In
-              </Link>
-              <Link 
-                to="/apply-leave" 
-                className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition shadow-md"
-              >
-                Apply Leave
-              </Link>
+            <div>
+              <div className="text-lg font-bold text-white">{company}</div>
+              <div className="text-xs text-blue-100">Smart software & digital services</div>
             </div>
           </div>
-        </div>
-      </nav>
 
-      {/* Hero Section */}
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 className="text-5xl font-bold text-gray-900 leading-tight">
-              Streamlined Leave Management
-              <span className="text-blue-600 block">For Modern Teams</span>
-            </h1>
-            <p className="mt-6 text-xl text-gray-600">
-              A comprehensive leave management system that simplifies employee time-off requests, 
-              approvals, and tracking for organizations of all sizes.
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/" className="text-sm font-medium text-white hover:text-blue-100 transition">Home</Link>
+            <Link to="/about" className="text-sm font-medium text-white hover:text-blue-100 transition">About</Link>
+            <Link to="/services" className="text-sm font-medium text-white hover:text-blue-100 transition">Services</Link>
+            <Link to="/contact" className="text-sm font-medium text-white hover:text-blue-100 transition">Contact</Link>
+          </nav>
+
+          <div className="md:hidden">
+            <button className="px-3 py-2 bg-white/20 text-white rounded-md text-sm hover:bg-white/30 transition">Menu</button>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-6 py-16 flex-1">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-sm uppercase tracking-widest text-blue-600 font-semibold">Welcome to</h2>
+              <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-700 to-purple-700 bg-clip-text text-transparent mt-2">{company}</h1>
+              <p className="text-lg text-slate-700 mt-2">Digital solutions that scale</p>
+            </div>
+
+            <p className="text-lg text-gray-700">
+              At {company}, we believe in turning ideas into powerful digital experiences. We are a forward-thinking
+              company dedicated to providing innovative technology solutions that help businesses grow, adapt, and succeed
+              in today’s fast-changing world.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link 
-                to="/login" 
-                className="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shadow-lg"
-              >
-                Employee Login
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </Link>
-              <Link 
-                to="/apply-leave" 
-                className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-50 transition border-2 border-blue-600"
-              >
-                Quick Leave Application
-                <CalendarDaysIcon className="ml-2 h-5 w-5" />
-              </Link>
-            </div>
-          </div>
-          <div className="relative">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 transform rotate-1">
-              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 text-white">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold">Leave Application</h3>
-                  <CalendarDaysIcon className="h-8 w-8" />
-                </div>
-                <p className="text-blue-100">
-                  Submit leave requests in under 2 minutes. Get instant notifications and track approval status in real-time.
-                </p>
-              </div>
-              <div className="mt-8 grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="text-blue-600 font-bold text-3xl">24/7</div>
-                  <div className="text-gray-600">Access</div>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="text-blue-600 font-bold text-3xl">99%</div>
-                  <div className="text-gray-600">Approval Rate</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Features Section */}
-      <div className="bg-white py-16">
-        <div className="container mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
-            Why Choose Our System
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-6 rounded-xl hover:shadow-lg transition">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                <UserGroupIcon className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Employee Focused</h3>
-              <p className="text-gray-600">
-                Easy-to-use interface for employees to apply, track, and manage their leave requests.
-              </p>
-            </div>
-            <div className="text-center p-6 rounded-xl hover:shadow-lg transition">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                <ShieldCheckIcon className="h-8 w-8 text-green-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Secure & Compliant</h3>
-              <p className="text-gray-600">
-                Enterprise-grade security with compliance to labor laws and company policies.
-              </p>
-            </div>
-            <div className="text-center p-6 rounded-xl hover:shadow-lg transition">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
-                <ChartBarIcon className="h-8 w-8 text-purple-600" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Analytics Dashboard</h3>
-              <p className="text-gray-600">
-                Comprehensive reports and insights for better workforce management.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Action Cards */}
-      <div className="container mx-auto px-6 py-16">
-        <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
-          Quick Actions
-        </h2>
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-8 text-white transform hover:-translate-y-2 transition duration-300">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold">Employee Login</h3>
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                <UserGroupIcon className="h-6 w-6" />
-              </div>
-            </div>
-            <p className="text-blue-100 mb-8">
-              Access your dashboard to view leave balance, submit requests, and check approvals.
+            <p className="text-gray-600">
+              With a passionate team of professionals, we specialize in web development, software solutions, and digital
+              services tailored to meet our clients’ unique needs. Our mission is to deliver high-quality, reliable, and
+              user-friendly solutions while building long-term relationships based on trust and excellence.
             </p>
-            <Link 
-              to="/login"
-              className="inline-flex items-center justify-center w-full py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition"
-            >
-              Go to Login
-              <ArrowRightIcon className="ml-2 h-5 w-5" />
-            </Link>
+
+            <p className="text-gray-600">
+              Whether you're a startup looking to build your first online presence or an established business seeking to
+              enhance your systems, {company} is your trusted partner for smart and scalable solutions. Let’s build the future together.
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link to="/about" className="px-5 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg">Learn More</Link>
+              <Link to="/contact" className="px-5 py-3 border-2 border-blue-600 rounded-lg text-blue-700 hover:bg-blue-50 font-medium">Contact Us</Link>
+            </div>
           </div>
-          
-          <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-8 text-white transform hover:-translate-y-2 transition duration-300">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold">Apply for Leave</h3>
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                <CalendarDaysIcon className="h-6 w-6" />
+
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
+                <h4 className="font-semibold">Web Development</h4>
+                <p className="mt-2 text-sm opacity-90">Modern, responsive web apps built to perform.</p>
+              </div>
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
+                <h4 className="font-semibold">Custom Software</h4>
+                <p className="mt-2 text-sm opacity-90">Tailored internal tools and automations.</p>
+              </div>
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-orange-500 to-rose-600 text-white shadow-lg">
+                <h4 className="font-semibold">Integrations</h4>
+                <p className="mt-2 text-sm opacity-90">APIs and workflow integrations to connect systems.</p>
+              </div>
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 text-white shadow-lg">
+                <h4 className="font-semibold">Design & UX</h4>
+                <p className="mt-2 text-sm opacity-90">Usable interfaces with product-minded design.</p>
               </div>
             </div>
-            <p className="text-green-100 mb-8">
-              Quick leave application without login. Perfect for urgent requests or first-time users.
-            </p>
-            <Link 
-              to="/apply-leave"
-              className="inline-flex items-center justify-center w-full py-3 bg-white text-green-600 font-semibold rounded-lg hover:bg-gray-100 transition"
-            >
-              Apply Now
-              <ArrowRightIcon className="ml-2 h-5 w-5" />
-            </Link>
+
+            <div className="mt-4">
+              <div className="bg-white rounded-2xl shadow p-6">
+                <h3 className="text-lg font-semibold">Get started</h3>
+                <p className="mt-2 text-sm text-gray-600">Start your journey with our expert team today.</p>
+                <div className="mt-4">
+                  <Link to="/contact" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Contact Sales</Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <BuildingOffice2Icon className="h-6 w-6 text-blue-400" />
-              <span className="text-xl font-bold">LeaveTrack Pro</span>
+      <footer className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 border-t">
+        <div className="container mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded bg-white shadow-md flex items-center justify-center">
+              <img src={LogoSvg} alt="logo" className="w-5 h-5" />
             </div>
-            <div className="text-gray-400">
-              © {new Date().getFullYear()} Leave Management System. All rights reserved.
-            </div>
+            <div className="text-sm text-white/90">© {new Date().getFullYear()} {company}. All rights reserved.</div>
+          </div>
+
+          <div className="mt-4 md:mt-0 flex items-center space-x-4">
+            <Link to="/login" className="text-sm px-4 py-2 bg-white text-blue-600 rounded-md font-medium hover:bg-blue-50 transition shadow-md">HR Login</Link>
+            <Link to="/apply-leave" className="text-sm px-4 py-2 border-2 border-white text-white rounded-md hover:bg-white/10 transition font-medium">Apply Leave</Link>
           </div>
         </div>
       </footer>
@@ -232,4 +116,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+export default HomePage;
