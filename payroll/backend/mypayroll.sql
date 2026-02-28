@@ -75,3 +75,28 @@ CREATE TABLE IF NOT EXISTS leaves (
 
 -- Sample employees
 -- (Removed sample INSERTs to clear example data)
+
+-- Attendance table to support Attendance page
+CREATE TABLE IF NOT EXISTS attendance (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  employee_id VARCHAR(64) NOT NULL,
+  employee_name VARCHAR(200) NOT NULL,
+  date DATE NOT NULL,
+  check_in TIME DEFAULT NULL,
+  check_out TIME DEFAULT NULL,
+  working_hours DECIMAL(6,2) DEFAULT 0,
+  overtime DECIMAL(6,2) DEFAULT 0,
+  status VARCHAR(50) DEFAULT 'present',
+  source VARCHAR(50) DEFAULT 'biometric',
+  remarks TEXT,
+  department VARCHAR(100),
+  payroll_locked TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Example attendance rows (small dataset for initial testing)
+INSERT INTO attendance (employee_id, employee_name, date, check_in, check_out, working_hours, overtime, status, source, remarks, department, payroll_locked) VALUES
+  ('001', 'John Doe', '2024-01-15', '08:55:00', '17:10:00', 8.25, 0.25, 'present', 'biometric', '', 'IT', 0),
+  ('002', 'Jane Smith', '2024-01-15', '09:15:00', '17:05:00', 7.83, 0.00, 'late', 'hybrid', 'Manual override - forgot to punch out', 'HR', 0),
+  ('003', 'Bob Johnson', '2024-01-15', NULL, NULL, 0.00, 0.00, 'absent', 'manual', 'Sick leave', 'Finance', 1);
+

@@ -88,6 +88,9 @@ app.use('/departments', require('./routes/departments'));
 // Leaves routes (apply, list, update)
 app.use('/leaves', require('./routes/leaves'));
 
+// Attendance routes
+app.use('/attendance', require('./routes/attendance'));
+
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

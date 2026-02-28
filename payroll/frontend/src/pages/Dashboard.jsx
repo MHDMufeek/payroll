@@ -1,6 +1,8 @@
 import TopNav from "../components/TopNav";
 import StatCard from "../components/StatCard";
 import { useTheme } from "../context/ThemeContext";
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 
 const Dashboard = () => {
   const { isDark } = useTheme();
@@ -15,6 +17,42 @@ const Dashboard = () => {
     { time: "10:00 AM - 11:00 AM", title: "Team Standup", type: "Daily" },
     { time: "11:00 AM - 12:00 PM", title: "Client Review", type: "Meeting" },
   ];
+
+  const [employees, setEmployees] = useState([]);
+  const [todayAttendance, setTodayAttendance] = useState([]);
+  const [attendancePercent, setAttendancePercent] = useState(0);
+
+  useEffect(() => {
+    const load = async () => {
+      const today = new Date().toISOString().split('T')[0];
+      try {
+        const [empRes, attRes] = await Promise.all([
+          axios.get('http://localhost:5000/employees'),
+          axios.get('http://localhost:5000/attendance', { params: { startDate: today, endDate: today } })
+        ]);
+        const emps = empRes.data || [];
+        const atts = attRes.data || [];
+        setEmployees(emps);
+        setTodayAttendance(atts);
+
+        const presentCount = atts.filter(a => (a.status || a.status === 'present' ? a.status === 'present' : a.status)).length;
+        const total = emps.length || 1;
+        const pct = Math.round((presentCount / total) * 100);
+        setAttendancePercent(pct);
+      } catch (err) {
+        console.warn('Dashboard: backend not available', err.message || err);
+      }
+    };
+    load();
+  }, []);
+
+  const activeEmployees = employees.length || 0;
+  const presentToday = todayAttendance.filter(r => r.status === 'present').length;
+
+  const pct = attendancePercent;
+  const radius = 60;
+  const circumference = 2 * Math.PI * radius;
+  const dash = `${(pct/100) * circumference} ${circumference}`;
 
   return (
     <div className={isDark ? "min-h-screen bg-gray-900 text-white" : "min-h-screen bg-white"}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import TopNav from "../components/TopNav";
 import { useTheme } from "../context/ThemeContext";
 
@@ -47,74 +48,51 @@ const AttendancePage = () => {
     overrideExisting: false
   });
 
-  // Initial data (would come from API in real app)
+  // Load data from backend (fallback to small mock if backend unavailable)
   useEffect(() => {
-    // Mock data
-    const mockEmployees = [
-      { id: '001', name: 'John Doe', department: 'IT', email: 'john@company.com' },
-      { id: '002', name: 'Jane Smith', department: 'HR', email: 'jane@company.com' },
-      { id: '003', name: 'Bob Johnson', department: 'Finance', email: 'bob@company.com' },
-    ];
-    
-    const mockAttendance = [
-      {
-        id: '1',
-        employeeId: '001',
-        employeeName: 'John Doe',
-        date: '2024-01-15',
-        checkIn: '08:55',
-        checkOut: '17:10',
-        workingHours: 8.25,
-        overtime: 0.25,
-        status: 'present',
-        source: 'biometric',
-        remarks: '',
-        department: 'IT',
-        payrollLocked: false
-      },
-      {
-        id: '2',
-        employeeId: '002',
-        employeeName: 'Jane Smith',
-        date: '2024-01-15',
-        checkIn: '09:15',
-        checkOut: '17:05',
-        workingHours: 7.83,
-        overtime: 0,
-        status: 'late',
-        source: 'hybrid',
-        remarks: 'Manual override - forgot to punch out',
-        department: 'HR',
-        payrollLocked: false
-      },
-      {
-        id: '3',
-        employeeId: '003',
-        employeeName: 'Bob Johnson',
-        date: '2024-01-15',
-        checkIn: '',
-        checkOut: '',
-        workingHours: 0,
-        overtime: 0,
-        status: 'absent',
-        source: 'manual',
-        remarks: 'Sick leave',
-        department: 'Finance',
-        payrollLocked: true
-      },
-    ];
+    const load = async () => {
+      try {
+        const [empRes, attRes] = await Promise.all([
+          axios.get('http://localhost:5000/employees'),
+          axios.get('http://localhost:5000/attendance')
+        ]);
+        const emps = empRes.data || [];
+        setEmployees(emps);
 
-    const mockBiometricLogs = [
-      { id: '1', employeeId: '001', timestamp: '2024-01-15 08:55:00', event: 'IN', device: 'FP-01' },
-      { id: '2', employeeId: '001', timestamp: '2024-01-15 12:00:00', event: 'OUT', device: 'FP-01' },
-      { id: '3', employeeId: '001', timestamp: '2024-01-15 13:00:00', event: 'IN', device: 'FP-01' },
-      { id: '4', employeeId: '001', timestamp: '2024-01-15 17:10:00', event: 'OUT', device: 'FP-01' },
-    ];
+        const atts = (attRes.data || []).map(r => ({
+          id: r.id,
+          employeeId: r.employee_id || r.employeeId || r.emp_id || '',
+          employeeName: r.employee_name || r.employeeName || r.name || '',
+          date: r.date ? (new Date(r.date)).toISOString().split('T')[0] : (r.date || ''),
+          checkIn: r.check_in ? r.check_in.substring(0,5) : (r.checkIn || ''),
+          checkOut: r.check_out ? r.check_out.substring(0,5) : (r.checkOut || ''),
+          workingHours: parseFloat(r.working_hours || r.workingHours || 0),
+          overtime: parseFloat(r.overtime || 0),
+          status: r.status || 'present',
+          source: r.source || 'manual',
+          remarks: r.remarks || '',
+          department: r.department || '',
+          payrollLocked: r.payroll_locked ? Boolean(r.payroll_locked) : Boolean(r.payrollLocked)
+        }));
+        setAttendanceRecords(atts);
+      } catch (err) {
+        // fallback mock if backend unreachable
+        console.warn('Backend not available, using mock data:', err.message || err);
+        const mockEmployees = [
+          { id: '1', employee_id: '001', name: 'John Doe', department: 'IT', email: 'john@company.com' },
+          { id: '2', employee_id: '002', name: 'Jane Smith', department: 'HR', email: 'jane@company.com' },
+          { id: '3', employee_id: '003', name: 'Bob Johnson', department: 'Finance', email: 'bob@company.com' }
+        ];
+        const mockAttendance = [
+          { id: '1', employeeId: '001', employeeName: 'John Doe', date: '2024-01-15', checkIn: '08:55', checkOut: '17:10', workingHours: 8.25, overtime: 0.25, status: 'present', source: 'biometric', remarks: '', department: 'IT', payrollLocked: false }
+        ];
+        setEmployees(mockEmployees);
+        setAttendanceRecords(mockAttendance);
+      }
+      setDepartments(['IT', 'HR', 'Finance', 'Sales', 'Operations']);
+    };
 
-    setEmployees(mockEmployees);
-    setAttendanceRecords(mockAttendance);
-    setBiometricLogs(mockBiometricLogs);
-    setDepartments(['IT', 'HR', 'Finance', 'Sales', 'Operations']);
+    load();
   }, []);
 
   // Handle file import
@@ -125,7 +103,7 @@ const AttendancePage = () => {
   };
 
   // Process attendance from biometric logs
-  const processAttendance = () => {
+  const processAttendance = async () => {
     // Group biometric logs by employee and date
     const groupedLogs = biometricLogs.reduce((acc, log) => {
       const date = log.timestamp.split(' ')[0];
@@ -137,117 +115,121 @@ const AttendancePage = () => {
       return acc;
     }, {});
 
-    // Process each group
-    Object.keys(groupedLogs).forEach(key => {
+    // Process each group sequentially and persist to backend
+    const keys = Object.keys(groupedLogs);
+    for (const key of keys) {
       const logs = groupedLogs[key];
       const [employeeId, date] = key.split('-');
-      
-      // Find employee
-      const employee = employees.find(e => e.id === employeeId);
-      if (!employee) return;
+
+      // Find employee (match employee_id or numeric id)
+      const employee = employees.find(e => String(e.employee_id) === String(employeeId) || String(e.employeeId) === String(employeeId) || String(e.id) === String(employeeId));
+      if (!employee) continue;
 
       // Sort logs by timestamp
       logs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
       // Find first IN and last OUT
       const firstIn = logs.find(log => log.event === 'IN');
-      const lastOut = logs.reverse().find(log => log.event === 'OUT');
-      
-      if (firstIn && lastOut) {
-        const checkInTime = firstIn.timestamp.split(' ')[1];
-        const checkOutTime = lastOut.timestamp.split(' ')[1];
-        
-        // Calculate working hours
-        const checkIn = new Date(`1970-01-01T${checkInTime}`);
-        const checkOut = new Date(`1970-01-01T${checkOutTime}`);
-        const workingHours = (checkOut - checkIn) / (1000 * 60 * 60) - 1; // Subtract lunch
-        const overtime = Math.max(0, workingHours - 8);
-        
-        // Create attendance record
-        const newRecord = {
-          id: Date.now().toString(),
-          employeeId,
-          employeeName: employee.name,
-          date,
-          checkIn: checkInTime.substring(0, 5),
-          checkOut: checkOutTime.substring(0, 5),
-          workingHours: parseFloat(workingHours.toFixed(2)),
-          overtime: parseFloat(overtime.toFixed(2)),
-          status: workingHours >= 8 ? 'present' : workingHours >= 4 ? 'half-day' : 'absent',
-          source: 'biometric',
-          remarks: '',
-          department: employee.department,
-          payrollLocked: false
-        };
+      const lastOut = [...logs].reverse().find(log => log.event === 'OUT');
 
-        // Check if record exists
-        const existingIndex = attendanceRecords.findIndex(r => 
-          r.employeeId === employeeId && r.date === date
-        );
+      if (!(firstIn && lastOut)) continue;
 
-        if (existingIndex >= 0 && processForm.overrideExisting) {
-          // Update existing record
-          const updatedRecords = [...attendanceRecords];
-          updatedRecords[existingIndex] = {
-            ...updatedRecords[existingIndex],
-            ...newRecord,
-            source: 'hybrid',
-            remarks: updatedRecords[existingIndex].remarks || 'Auto-processed from biometric'
-          };
-          setAttendanceRecords(updatedRecords);
+      const checkInTime = firstIn.timestamp.split(' ')[1];
+      const checkOutTime = lastOut.timestamp.split(' ')[1];
+      const checkIn = new Date(`1970-01-01T${checkInTime}`);
+      const checkOut = new Date(`1970-01-01T${checkOutTime}`);
+      const workingHours = (checkOut - checkIn) / (1000 * 60 * 60) - 1; // Subtract lunch
+      const overtime = Math.max(0, workingHours - 8);
+
+      const payload = {
+        employeeId: employee.employee_id || employee.employeeId || String(employee.id),
+        employeeName: employee.name,
+        date,
+        checkIn: checkInTime.substring(0,5),
+        checkOut: checkOutTime.substring(0,5),
+        workingHours: parseFloat(workingHours.toFixed(2)),
+        overtime: parseFloat(overtime.toFixed(2)),
+        status: workingHours >= 8 ? 'present' : workingHours >= 4 ? 'half-day' : 'absent',
+        source: 'biometric',
+        remarks: '',
+        department: employee.department,
+        payrollLocked: false
+      };
+
+      // Find existing record
+      const existing = attendanceRecords.find(r => String(r.employeeId) === String(payload.employeeId) && r.date === date);
+
+      try {
+        if (existing && processForm.overrideExisting) {
+          // Update via API
+          await axios.put(`http://localhost:5000/attendance/${existing.id}`, { ...payload, source: 'hybrid', remarks: existing.remarks || 'Auto-processed from biometric' });
+          setAttendanceRecords(prev => prev.map(r => (r.id === existing.id ? { ...r, ...payload, source: 'hybrid' } : r)));
           logAudit('UPDATE', `Updated attendance for ${employee.name} on ${date}`);
-        } else if (existingIndex === -1) {
-          // Add new record
-          setAttendanceRecords(prev => [...prev, newRecord]);
+        } else if (!existing) {
+          // Create via API
+          const res = await axios.post('http://localhost:5000/attendance', payload);
+          const newId = res.data && res.data.id ? res.data.id : Date.now().toString();
+          setAttendanceRecords(prev => [...prev, { ...payload, id: newId }]);
           logAudit('CREATE', `Created biometric attendance for ${employee.name} on ${date}`);
         }
+      } catch (err) {
+        console.error('Error processing attendance for', payload.employeeId, date, err);
       }
-    });
+    }
 
     setShowProcessModal(false);
   };
 
   // Handle manual entry
   const handleManualEntry = () => {
-    const employee = employees.find(e => e.id === manualEntry.employeeId);
-    if (!employee) return;
+    const employee = employees.find(e => (e.id == manualEntry.employeeId) || (String(e.employee_id) === String(manualEntry.employeeId)));
+    if (!employee) {
+      alert('Please select a valid employee');
+      return;
+    }
 
-    const newRecord = {
-      id: Date.now().toString(),
+    // If overriding biometric, ensure reason and approver provided
+    const biometricExists = attendanceRecords.some(r => r.employeeId == manualEntry.employeeId && r.date === manualEntry.date && r.source === 'biometric');
+    if (biometricExists && (!manualEntry.reason || !manualEntry.approver)) {
+      alert('Reason and approver required when overriding biometric data');
+      return;
+    }
+
+    const payload = {
       employeeId: manualEntry.employeeId,
       employeeName: employee.name,
       date: manualEntry.date,
-      checkIn: manualEntry.checkIn,
-      checkOut: manualEntry.checkOut,
-      workingHours: manualEntry.workingHours,
-      overtime: manualEntry.overtime,
-      status: manualEntry.status,
-      source: manualEntry.source,
-      remarks: manualEntry.reason,
-      department: employee.department,
-      payrollLocked: false,
-      approvedBy: manualEntry.approver
+      checkIn: manualEntry.checkIn || null,
+      checkOut: manualEntry.checkOut || null,
+      workingHours: manualEntry.workingHours || 0,
+      overtime: manualEntry.overtime || 0,
+      status: manualEntry.status || 'present',
+      source: manualEntry.source || 'manual',
+      remarks: manualEntry.reason || null,
+      department: employee.department || null,
+      payrollLocked: false
     };
 
-    // Check if biometric record exists
-    const biometricExists = attendanceRecords.some(r => 
-      r.employeeId === manualEntry.employeeId && 
-      r.date === manualEntry.date && 
-      r.source === 'biometric'
-    );
-
-    if (biometricExists) {
-      // If overriding biometric, require reason and approver
-      if (!manualEntry.reason || !manualEntry.approver) {
-        alert('Reason and approver required for overriding biometric data');
-        return;
+    (async () => {
+      try {
+        if (manualEntry.id) {
+          // Update existing
+          await axios.put(`http://localhost:5000/attendance/${manualEntry.id}`, payload);
+          setAttendanceRecords(prev => prev.map(r => r.id === manualEntry.id ? { ...r, ...payload, id: manualEntry.id } : r));
+          logAudit('UPDATE', `Updated manual attendance for ${employee.name} on ${manualEntry.date}`);
+        } else {
+          // Create new
+          const res = await axios.post('http://localhost:5000/attendance', payload);
+          const newId = res.data && res.data.id ? res.data.id : Date.now().toString();
+          setAttendanceRecords(prev => [...prev, { ...payload, id: newId, employeeName: employee.name }]);
+          logAudit('CREATE', `Manual attendance entry for ${employee.name} on ${manualEntry.date}`);
+        }
+        setShowManualEntryModal(false);
+      } catch (err) {
+        console.error('Failed to save manual attendance', err);
+        alert('Failed to save attendance. See console for details.');
       }
-      newRecord.source = 'hybrid';
-    }
-
-    setAttendanceRecords(prev => [...prev, newRecord]);
-    logAudit('CREATE', `Manual attendance entry for ${employee.name} on ${manualEntry.date}`);
-    setShowManualEntryModal(false);
+    })();
   };
 
   // Audit log function
@@ -551,10 +533,17 @@ const AttendancePage = () => {
                               </svg>
                             </button>
                             <button
-                              onClick={() => {
-                                if (window.confirm('Delete this attendance record?')) {
+                              onClick={async () => {
+                                if (!window.confirm('Delete this attendance record?')) return;
+                                try {
+                                  if (record.id && Number(record.id)) {
+                                    await axios.delete(`http://localhost:5000/attendance/${record.id}`);
+                                  }
                                   setAttendanceRecords(prev => prev.filter(r => r.id !== record.id));
                                   logAudit('DELETE', `Deleted attendance for ${record.employeeName} on ${record.date}`);
+                                } catch (err) {
+                                  console.error('Failed to delete attendance', err);
+                                  alert('Failed to delete attendance. See console for details.');
                                 }
                               }}
                               className={isDark ? "text-red-400 hover:text-red-300 hover:bg-gray-700 p-1 rounded" : "text-red-600 hover:text-red-800 hover:bg-gray-100 p-1 rounded"}
@@ -642,6 +631,11 @@ const AttendancePage = () => {
 
         {/* Manual Entry Modal */}
         {showManualEntryModal && (
+          (() => {
+            const biometricOverrideRequired = attendanceRecords.some(r => 
+              r.employeeId === manualEntry.employeeId && r.date === manualEntry.date && r.source === 'biometric'
+            );
+            return (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="p-6">
@@ -666,8 +660,8 @@ const AttendancePage = () => {
                       >
                         <option value="">Select Employee</option>
                         {employees.map(emp => (
-                          <option key={emp.id} value={emp.id}>
-                            {emp.name} - {emp.department}
+                          <option key={emp.id || emp.employee_id || emp.employeeId} value={emp.employee_id || emp.employeeId || String(emp.id)}>
+                            {(emp.name || emp.first_name || emp.name) + ' - ' + (emp.department || '')}
                           </option>
                         ))}
                       </select>
@@ -774,7 +768,7 @@ const AttendancePage = () => {
                       <textarea
                         value={manualEntry.reason}
                         onChange={(e) => setManualEntry(prev => ({...prev, reason: e.target.value}))}
-                        required
+                        required={biometricOverrideRequired}
                         rows="3"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         placeholder="Enter reason for manual entry..."
@@ -789,7 +783,7 @@ const AttendancePage = () => {
                         type="text"
                         value={manualEntry.approver}
                         onChange={(e) => setManualEntry(prev => ({...prev, approver: e.target.value}))}
-                        required
+                        required={biometricOverrideRequired}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         placeholder="Enter approver name"
                       />
@@ -815,6 +809,8 @@ const AttendancePage = () => {
               </div>
             </div>
           </div>
+          )
+        })()
         )}
 
         {/* Process Attendance Modal */}
