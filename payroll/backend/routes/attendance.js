@@ -1,111 +1,95 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const Attendance = require('../models/Attendance');
 
 // GET attendance list with optional filters
-router.get('/', (req, res) => {
-  const { startDate, endDate, employeeId, department, source } = req.query;
-  let sql = 'SELECT * FROM attendance WHERE 1=1';
-  const params = [];
+router.get('/', async (req, res) => {
+  try {
+    const { startDate, endDate, employeeId, department, source } = req.query;
+    const query = {};
+    if (startDate) query.date = { ...query.date, $gte: new Date(startDate) };
+    if (endDate) query.date = { ...query.date, $lte: new Date(endDate) };
+    if (employeeId) query.employee_id = employeeId;
+    if (department) query.department = department;
+    if (source) query.source = source;
 
-  if (startDate) {
-    sql += ' AND date >= ?';
-    params.push(startDate);
-  }
-  if (endDate) {
-    sql += ' AND date <= ?';
-    params.push(endDate);
-  }
-  if (employeeId) {
-    sql += ' AND employee_id = ?';
-    params.push(employeeId);
-  }
-  if (department) {
-    sql += ' AND department = ?';
-    params.push(department);
-  }
-  if (source) {
-    sql += ' AND source = ?';
-    params.push(source);
-  }
-
-  sql += ' ORDER BY date DESC, id DESC';
-
-  db.query(sql, params, (err, results) => {
-    if (err) return res.status(500).json(err);
+    const results = await Attendance.find(query).sort({ date: -1, _id: -1 }).lean();
     res.json(results);
-  });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 // GET single attendance by id
-router.get('/:id', (req, res) => {
-  const sql = 'SELECT * FROM attendance WHERE id = ?';
-  db.query(sql, [req.params.id], (err, results) => {
-    if (err) return res.status(500).json(err);
-    if (results.length === 0) return res.status(404).json({ message: 'Attendance not found' });
-    res.json(results[0]);
-  });
+router.get('/:id', async (req, res) => {
+  try {
+    const att = await Attendance.findById(req.params.id).lean();
+    if (!att) return res.status(404).json({ message: 'Attendance not found' });
+    res.json(att);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 // Create attendance record
-router.post('/', (req, res) => {
-  const a = req.body || {};
-  const sql = `INSERT INTO attendance (employee_id, employee_name, date, check_in, check_out, working_hours, overtime, status, source, remarks, department, payroll_locked)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`;
-  const values = [
-    a.employeeId || a.employee_id || null,
-    a.employeeName || a.employee_name || null,
-    a.date || null,
-    a.checkIn || a.check_in || null,
-    a.checkOut || a.check_out || null,
-    a.workingHours != null ? a.workingHours : (a.working_hours != null ? a.working_hours : 0),
-    a.overtime != null ? a.overtime : (a.overtime != null ? a.overtime : 0),
-    a.status || 'present',
-    a.source || 'manual',
-    a.remarks || null,
-    a.department || null,
-    a.payrollLocked ? 1 : 0
-  ];
-
-  db.query(sql, values, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, message: 'Attendance created' });
-  });
+router.post('/', async (req, res) => {
+  try {
+    const data = req.body || {};
+    const a = new Attendance({
+      employee_id: data.employeeId || data.employee_id,
+      employee_name: data.employeeName || data.employee_name,
+      date: data.date,
+      check_in: data.checkIn || data.check_in,
+      check_out: data.checkOut || data.check_out,
+      working_hours: data.workingHours != null ? data.workingHours : (data.working_hours != null ? data.working_hours : 0),
+      overtime: data.overtime != null ? data.overtime : (data.overtime != null ? data.overtime : 0),
+      status: data.status || 'present',
+      source: data.source || 'manual',
+      remarks: data.remarks,
+      department: data.department,
+      payroll_locked: data.payrollLocked || false
+    });
+    await a.save();
+    res.json({ id: a.id, message: 'Attendance created' });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 // Update attendance
-router.put('/:id', (req, res) => {
-  const a = req.body || {};
-  const sql = `UPDATE attendance SET employee_id = ?, employee_name = ?, date = ?, check_in = ?, check_out = ?, working_hours = ?, overtime = ?, status = ?, source = ?, remarks = ?, department = ?, payroll_locked = ? WHERE id = ?`;
-  const values = [
-    a.employeeId || a.employee_id || null,
-    a.employeeName || a.employee_name || null,
-    a.date || null,
-    a.checkIn || a.check_in || null,
-    a.checkOut || a.check_out || null,
-    a.workingHours != null ? a.workingHours : (a.working_hours != null ? a.working_hours : 0),
-    a.overtime != null ? a.overtime : (a.overtime != null ? a.overtime : 0),
-    a.status || 'present',
-    a.source || 'manual',
-    a.remarks || null,
-    a.department || null,
-    a.payrollLocked ? 1 : 0,
-    req.params.id
-  ];
-
-  db.query(sql, values, (err, result) => {
-    if (err) return res.status(500).json(err);
+router.put('/:id', async (req, res) => {
+  try {
+    const data = req.body || {};
+    const updated = await Attendance.findByIdAndUpdate(req.params.id, {
+      employee_id: data.employeeId || data.employee_id,
+      employee_name: data.employeeName || data.employee_name,
+      date: data.date,
+      check_in: data.checkIn || data.check_in,
+      check_out: data.checkOut || data.check_out,
+      working_hours: data.workingHours != null ? data.workingHours : (data.working_hours != null ? data.working_hours : 0),
+      overtime: data.overtime != null ? data.overtime : (data.overtime != null ? data.overtime : 0),
+      status: data.status || 'present',
+      source: data.source || 'manual',
+      remarks: data.remarks,
+      department: data.department,
+      payroll_locked: data.payrollLocked || false
+    }, { new: true });
+    if (!updated) return res.status(404).json({ message: 'Attendance not found' });
     res.json({ message: 'Attendance updated' });
-  });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 // Delete attendance
-router.delete('/:id', (req, res) => {
-  const sql = 'DELETE FROM attendance WHERE id = ?';
-  db.query(sql, [req.params.id], (err, result) => {
-    if (err) return res.status(500).json(err);
+router.delete('/:id', async (req, res) => {
+  try {
+    const deleted = await Attendance.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'Attendance not found' });
     res.json({ message: 'Attendance deleted' });
-  });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 module.exports = router;

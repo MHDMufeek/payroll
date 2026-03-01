@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "create-departments-table": "node scripts/create_departments_table.js"
+    "create-departments-table": "node scripts/create_departments_table.js",
+    "seed": "node scripts/seed_mongo.js"
   },
   "dependencies": {
     "axios": "^1.13.2",

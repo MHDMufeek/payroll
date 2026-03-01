@@ -1,746 +1,671 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from "react";
+import axios from "axios";
 import TopNav from "../components/TopNav";
 import { useTheme } from "../context/ThemeContext";
-import { 
-  BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, 
-  CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area 
-} from 'recharts';
+import {
+  BarChart, Bar, PieChart, Pie, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, Cell
+} from "recharts";
 
-const Reports = () => {
+const Report = () => {
   const { isDark } = useTheme();
-  const [selectedReportType, setSelectedReportType] = useState('overview');
-  const [selectedDepartment, setSelectedDepartment] = useState('all');
-  const [selectedTimeRange, setSelectedTimeRange] = useState('monthly');
-  const [isLoading, setIsLoading] = useState(false);
-  const [filterStartDate, setFilterStartDate] = useState('');
-  const [filterEndDate, setFilterEndDate] = useState('');
 
-  // Report types
-  const reportTypes = [
-    { id: 'overview', name: 'Overview Dashboard', icon: '📊' },
-    { id: 'attendance', name: 'Attendance Reports', icon: '📅' },
-    { id: 'payroll', name: 'Payroll Reports', icon: '💰' },
-    { id: 'employee', name: 'Employee Analytics', icon: '👥' },
-    { id: 'department', name: 'Department Reports', icon: '🏢' },
-    { id: 'performance', name: 'Performance Metrics', icon: '📈' },
-  ];
+  // State for all data
+  const [leaves, setLeaves] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [payroll, setPayroll] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Time ranges
-  const timeRanges = [
-    { id: 'weekly', name: 'Weekly' },
-    { id: 'monthly', name: 'Monthly' },
-    { id: 'quarterly', name: 'Quarterly' },
-    { id: 'yearly', name: 'Yearly' },
-    { id: 'custom', name: 'Custom Range' },
-  ];
+  // Filter states
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0], // first day of current month
+    endDate: new Date().toISOString().split('T')[0]
+  });
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
 
-  // Departments for filtering
-  const departments = [
-    { id: 'all', name: 'All Departments' },
-    { id: 'engineering', name: 'Engineering' },
-    { id: 'sales', name: 'Sales' },
-    { id: 'marketing', name: 'Marketing' },
-    { id: 'hr', name: 'Human Resources' },
-    { id: 'finance', name: 'Finance' },
-    { id: 'operations', name: 'Operations' },
-  ];
-
-  // Mock data - Overview Statistics
-  const overviewStats = [
-    { label: 'Total Employees', value: 156, change: '+12%', color: 'bg-blue-500' },
-    { label: 'Active Employees', value: 142, change: '+8%', color: 'bg-green-500' },
-    { label: 'Monthly Payroll', value: '$425,850', change: '+5%', color: 'bg-purple-500' },
-    { label: 'Avg Attendance', value: '94.2%', change: '+2.3%', color: 'bg-orange-500' },
-    { label: 'Departments', value: '8', change: '0%', color: 'bg-pink-500' },
-    { label: 'Open Positions', value: '12', change: '-3', color: 'bg-indigo-500' },
-  ];
-
-  // Attendance data for charts
-  const attendanceData = [
-    { month: 'Jan', present: 92, absent: 5, late: 3, leave: 8 },
-    { month: 'Feb', present: 94, absent: 3, late: 2, leave: 7 },
-    { month: 'Mar', present: 91, absent: 6, late: 4, leave: 9 },
-    { month: 'Apr', present: 95, absent: 2, late: 1, leave: 6 },
-    { month: 'May', present: 93, absent: 4, late: 3, leave: 8 },
-    { month: 'Jun', present: 96, absent: 1, late: 2, leave: 5 },
-  ];
-
-  // Department performance data
-  const departmentPerformance = [
-    { name: 'Engineering', attendance: 96, productivity: 92, budget: 120000, employees: 45 },
-    { name: 'Sales', attendance: 89, productivity: 98, budget: 85000, employees: 28 },
-    { name: 'Marketing', attendance: 92, productivity: 85, budget: 65000, employees: 22 },
-    { name: 'HR', attendance: 95, productivity: 88, budget: 45000, employees: 18 },
-    { name: 'Finance', attendance: 97, productivity: 94, budget: 55000, employees: 20 },
-    { name: 'Operations', attendance: 93, productivity: 91, budget: 75000, employees: 25 },
-  ];
-
-  // Employee distribution by department
-  const employeeDistribution = [
-    { name: 'Engineering', value: 45, color: '#3b82f6' },
-    { name: 'Sales', value: 28, color: '#10b981' },
-    { name: 'Marketing', value: 22, color: '#8b5cf6' },
-    { name: 'HR', value: 18, color: '#f59e0b' },
-    { name: 'Finance', value: 20, color: '#ef4444' },
-    { name: 'Operations', value: 25, color: '#ec4899' },
-  ];
-
-  // Monthly payroll data
-  const payrollData = [
-    { month: 'Jan', salary: 385000, bonus: 25000, deductions: 18500 },
-    { month: 'Feb', salary: 390000, bonus: 28000, deductions: 19200 },
-    { month: 'Mar', salary: 395000, bonus: 30000, deductions: 19800 },
-    { month: 'Apr', salary: 400000, bonus: 32000, deductions: 20500 },
-    { month: 'May', salary: 405000, bonus: 35000, deductions: 21000 },
-    { month: 'Jun', salary: 425850, bonus: 38000, deductions: 22500 },
-  ];
-
-  // Top performing employees
-  const topPerformers = [
-    { name: 'John Smith', department: 'Engineering', performance: 4.9, projects: 15 },
-    { name: 'Sarah Johnson', department: 'Sales', performance: 4.8, deals: '1.2M' },
-    { name: 'Mike Chen', department: 'Engineering', performance: 4.7, projects: 12 },
-    { name: 'Emma Wilson', department: 'Marketing', performance: 4.6, campaigns: 8 },
-    { name: 'David Brown', department: 'Operations', performance: 4.8, efficiency: '98%' },
-  ];
-
-  // Attendance trends
-  const attendanceTrends = [
-    { day: 'Mon', attendance: 94, late: 5 },
-    { day: 'Tue', attendance: 96, late: 3 },
-    { day: 'Wed', attendance: 95, late: 4 },
-    { day: 'Thu', attendance: 93, late: 6 },
-    { day: 'Fri', attendance: 92, late: 7 },
-    { day: 'Sat', attendance: 45, late: 2 },
-    { day: 'Sun', attendance: 12, late: 1 },
-  ];
-
-  // Handle report generation
-  const handleGenerateReport = () => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      alert(`Report generated for ${selectedReportType} (${selectedTimeRange})`);
-    }, 1500);
-  };
-
-  // Handle export
-  const handleExport = (format) => {
-    alert(`Exporting report as ${format.toUpperCase()}...`);
-  };
-
-  // Set default dates
+  // Fetch all data on mount
   useEffect(() => {
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    
-    setFilterStartDate(firstDay.toISOString().split('T')[0]);
-    setFilterEndDate(lastDay.toISOString().split('T')[0]);
+    const fetchAllData = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const [
+          leavesRes,
+          attendanceRes,
+          payrollRes,
+          employeesRes,
+          departmentsRes,
+          auditRes
+        ] = await Promise.allSettled([
+          axios.get("http://localhost:5000/leaves"),
+          axios.get("http://localhost:5000/attendance"),
+          axios.get("http://localhost:5000/payroll"),
+          axios.get("http://localhost:5000/employees"),
+          axios.get("http://localhost:5000/departments"),
+          axios.get("http://localhost:5000/audit-logs")
+        ]);
+
+        if (leavesRes.status === "fulfilled") setLeaves(leavesRes.value.data || []);
+        else console.error("Leaves fetch failed", leavesRes.reason);
+
+        if (attendanceRes.status === "fulfilled") setAttendance(attendanceRes.value.data || []);
+        else console.error("Attendance fetch failed", attendanceRes.reason);
+
+        if (payrollRes.status === "fulfilled") setPayroll(payrollRes.value.data || []);
+        else console.error("Payroll fetch failed", payrollRes.reason);
+
+        if (employeesRes.status === "fulfilled") setEmployees(employeesRes.value.data || []);
+        else console.error("Employees fetch failed", employeesRes.reason);
+
+        if (departmentsRes.status === "fulfilled") setDepartments(departmentsRes.value.data || []);
+        else console.error("Departments fetch failed", departmentsRes.reason);
+
+        if (auditRes.status === "fulfilled") setAuditLogs(auditRes.value.data || []);
+        else console.error("Audit logs fetch failed", auditRes.reason);
+
+      } catch (err) {
+        setError("Failed to load report data. Please try again.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
   }, []);
 
-  // Render report based on selected type
-  const renderReportContent = () => {
-    switch(selectedReportType) {
-      case 'overview':
-        return (
-          <div className="space-y-6">
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-              {overviewStats.map((stat, index) => (
-                <div key={index} className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`w-3 h-3 rounded-full ${stat.color}`}></div>
-                    <span className="text-sm font-medium text-green-600">{stat.change}</span>
-                  </div>
-                  <div className={`text-2xl font-bold ${isDark ? "text-gray-300" : "text-gray-900"}`}>{stat.value}</div>
-                  <div className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>{stat.label}</div>
-                </div>
-              ))}
-            </div>
+  // Filter data by department and date range
+  const filteredEmployees = useMemo(() => {
+    if (selectedDepartment === "all") return employees;
+    return employees.filter(emp => emp.department === selectedDepartment);
+  }, [employees, selectedDepartment]);
 
-            {/* Charts Row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Attendance Trend */}
-              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
-                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Attendance Trend</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={attendanceData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#f0f0f0"} />
-                    <XAxis dataKey="month" stroke={isDark ? "#9ca3af" : "#666"} />
-                    <YAxis stroke={isDark ? "#9ca3af" : "#666"} />
-                    <Tooltip contentStyle={isDark ? {backgroundColor: '#1f2937', border: '1px solid #374151'} : {}} />
-                    <Legend />
-                    <Line type="monotone" dataKey="present" stroke="#10b981" strokeWidth={2} />
-                    <Line type="monotone" dataKey="absent" stroke="#ef4444" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Department Distribution */}
-              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
-                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Employee Distribution</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={employeeDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {employeeDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={isDark ? {backgroundColor: '#1f2937', border: '1px solid #374151'} : {}} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Charts Row 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Department Performance */}
-              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
-                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Department Performance</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={departmentPerformance}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#f0f0f0"} />
-                    <XAxis dataKey="name" stroke={isDark ? "#9ca3af" : "#666"} />
-                    <YAxis stroke={isDark ? "#9ca3af" : "#666"} />
-                    <Tooltip contentStyle={isDark ? {backgroundColor: '#1f2937', border: '1px solid #374151'} : {}} />
-                    <Legend />
-                    <Bar dataKey="attendance" fill="#3b82f6" name="Attendance %" />
-                    <Bar dataKey="productivity" fill="#10b981" name="Productivity %" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Payroll Trend */}
-              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
-                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Payroll Trend</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={payrollData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#f0f0f0"} />
-                    <XAxis dataKey="month" stroke={isDark ? "#9ca3af" : "#666"} />
-                    <YAxis stroke={isDark ? "#9ca3af" : "#666"} />
-                    <Tooltip contentStyle={isDark ? {backgroundColor: '#1f2937', border: '1px solid #374151'} : {}} />
-                    <Area type="monotone" dataKey="salary" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} name="Salary" />
-                    <Area type="monotone" dataKey="bonus" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.3} name="Bonus" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Top Performers Table */}
-            <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 overflow-hidden" : "bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"}>
-              <div className={`px-6 py-4 ${isDark ? "border-b border-gray-700" : "border-b border-gray-200"}`}>
-                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"}`}>Top Performers</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className={isDark ? "bg-gray-700" : "bg-gray-50"}>
-                    <tr>
-                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Employee</th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Department</th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Performance</th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Metrics</th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider`}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className={isDark ? "divide-y divide-gray-700 bg-gray-800" : "divide-y divide-gray-200"}>
-                    {topPerformers.map((emp, index) => (
-                      <tr key={index} className={isDark ? "hover:bg-gray-700" : "hover:bg-gray-50"}>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className={isDark ? "w-10 h-10 bg-blue-900 rounded-lg flex items-center justify-center mr-3" : "w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3"}>
-                              <span className={isDark ? "text-blue-300 font-bold" : "text-blue-600 font-bold"}>{emp.name.charAt(0)}</span>
-                            </div>
-                            <div>
-                              <div className={`font-medium ${isDark ? "text-gray-300" : "text-gray-900"}`}>{emp.name}</div>
-                              <div className={`text-sm ${isDark ? "text-gray-500" : "text-gray-500"}`}>Employee ID: {1000 + index}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={isDark ? "px-3 py-1 text-xs font-medium bg-blue-900 text-blue-200 rounded-full" : "px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full"}>
-                            {emp.department}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className={isDark ? "w-24 bg-gray-700 rounded-full h-2 mr-2" : "w-24 bg-gray-200 rounded-full h-2 mr-2"}>
-                              <div 
-                                className="bg-green-600 h-2 rounded-full" 
-                                style={{ width: `${(emp.performance / 5) * 100}%` }}
-                              ></div>
-                            </div>
-                            <span className={`font-medium ${isDark ? "text-gray-300" : "text-gray-900"}`}>{emp.performance}/5.0</span>
-                          </div>
-                        </td>
-                        <td className={`px-6 py-4 ${isDark ? "text-gray-300" : "text-gray-900"}`}>
-                          {emp.projects ? `${emp.projects} projects` : `${emp.deals} deals`}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={isDark ? "px-3 py-1 text-xs font-medium bg-green-900 text-green-200 rounded-full" : "px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full"}>
-                            Excellent
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'attendance':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Attendance Summary */}
-              <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
-                <h3 className={`text-lg font-semibold ${isDark ? "text-gray-300" : "text-gray-900"} mb-4`}>Attendance Summary</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Total Working Days</span>
-                    <span className="font-semibold">26</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Average Attendance</span>
-                    <span className="font-semibold text-green-600">94.2%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Total Absent Days</span>
-                    <span className="font-semibold text-red-600">42</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Total Late Arrivals</span>
-                    <span className="font-semibold text-yellow-600">18</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Daily Attendance Trend */}
-              <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Attendance Pattern</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={attendanceTrends}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="day" stroke="#666" />
-                    <YAxis stroke="#666" />
-                    <Tooltip />
-                    <Bar dataKey="attendance" fill="#3b82f6" name="Attendance %" />
-                    <Bar dataKey="late" fill="#f59e0b" name="Late Arrivals" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Department-wise Attendance */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Department-wise Attendance</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employees</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Attendance</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Late Arrivals</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Absent Days</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {departmentPerformance.map((dept, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">{dept.name}</td>
-                        <td className="px-6 py-4">{dept.employees}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className="w-24 bg-gray-200 rounded-full h-2 mr-2">
-                              <div 
-                                className="bg-green-600 h-2 rounded-full" 
-                                style={{ width: `${dept.attendance}%` }}
-                              ></div>
-                            </div>
-                            <span>{dept.attendance}%</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="text-yellow-600 font-medium">{Math.floor(dept.employees * 0.15)}</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="text-red-600 font-medium">{Math.floor(dept.employees * 0.08)}</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            dept.attendance >= 95 ? 'bg-green-100 text-green-800' :
-                            dept.attendance >= 90 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {dept.attendance >= 95 ? 'Excellent' : dept.attendance >= 90 ? 'Good' : 'Needs Attention'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'payroll':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Payroll Summary */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Payroll Overview</h3>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-700">$425,850</div>
-                      <div className="text-sm text-gray-600">Monthly Payroll</div>
-                    </div>
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <div className="text-2xl font-bold text-green-700">$38,000</div>
-                      <div className="text-sm text-gray-600">Total Bonus</div>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Expense Distribution</h4>
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Base Salary</span>
-                          <span className="font-medium">78%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div className="bg-blue-600 h-2 rounded-full" style={{ width: '78%' }}></div>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Bonuses</span>
-                          <span className="font-medium">9%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div className="bg-green-600 h-2 rounded-full" style={{ width: '9%' }}></div>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Benefits</span>
-                          <span className="font-medium">8%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div className="bg-purple-600 h-2 rounded-full" style={{ width: '8%' }}></div>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Taxes & Deductions</span>
-                          <span className="font-medium">5%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div className="bg-red-600 h-2 rounded-full" style={{ width: '5%' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Department-wise Payroll */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Department-wise Payroll</h3>
-                <div className="space-y-4">
-                  {departmentPerformance.map((dept, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
-                      <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full mr-3 ${
-                          dept.name === 'Engineering' ? 'bg-blue-500' :
-                          dept.name === 'Sales' ? 'bg-green-500' :
-                          dept.name === 'Marketing' ? 'bg-purple-500' :
-                          dept.name === 'HR' ? 'bg-yellow-500' :
-                          dept.name === 'Finance' ? 'bg-red-500' : 'bg-pink-500'
-                        }`}></div>
-                        <span className="font-medium text-gray-900">{dept.name}</span>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-gray-900">${dept.budget.toLocaleString()}</div>
-                        <div className="text-sm text-gray-500">
-                          ${(dept.budget / dept.employees).toLocaleString()} per employee
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Payroll History Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Payroll History</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Base Salary</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bonuses</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deductions</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Pay</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {payrollData.map((payroll, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">{payroll.month}</td>
-                        <td className="px-6 py-4">${payroll.salary.toLocaleString()}</td>
-                        <td className="px-6 py-4 text-green-600">${payroll.bonus.toLocaleString()}</td>
-                        <td className="px-6 py-4 text-red-600">${payroll.deductions.toLocaleString()}</td>
-                        <td className="px-6 py-4 font-bold text-gray-900">
-                          ${(payroll.salary + payroll.bonus - payroll.deductions).toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                            Processed
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 text-gray-400">
-              <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a Report Type</h3>
-            <p className="text-gray-600 mb-6">Choose a report type from the sidebar to view detailed analytics</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-              {reportTypes.slice(1).map(type => (
-                <button
-                  key={type.id}
-                  onClick={() => setSelectedReportType(type.id)}
-                  className="p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-center"
-                >
-                  <div className="text-2xl mb-2">{type.icon}</div>
-                  <div className="text-sm font-medium text-gray-900">{type.name}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        );
+  const filteredAttendance = useMemo(() => {
+    let filtered = attendance;
+    if (selectedDepartment !== "all") {
+      const deptEmployeeIds = new Set(employees.filter(e => e.department === selectedDepartment).map(e => e.id));
+      filtered = filtered.filter(a => deptEmployeeIds.has(a.employeeId));
     }
-  };
-
-  // Format date for display
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    // Filter by date range
+    const start = new Date(dateRange.startDate);
+    const end = new Date(dateRange.endDate);
+    end.setHours(23, 59, 59, 999);
+    return filtered.filter(a => {
+      const d = new Date(a.date);
+      return d >= start && d <= end;
     });
-  };
+  }, [attendance, employees, selectedDepartment, dateRange]);
+
+  const filteredLeaves = useMemo(() => {
+    let filtered = leaves;
+    if (selectedDepartment !== "all") {
+      const deptEmployeeIds = new Set(employees.filter(e => e.department === selectedDepartment).map(e => e.id));
+      filtered = filtered.filter(l => deptEmployeeIds.has(l.emp_id));
+    }
+    // Filter by date range based on from_date or to_date? We'll use from_date as proxy
+    const start = new Date(dateRange.startDate);
+    const end = new Date(dateRange.endDate);
+    end.setHours(23, 59, 59, 999);
+    return filtered.filter(l => {
+      const d = new Date(l.from_date);
+      return d >= start && d <= end;
+    });
+  }, [leaves, employees, selectedDepartment, dateRange]);
+
+  const filteredPayroll = useMemo(() => {
+    let filtered = payroll;
+    if (selectedDepartment !== "all") {
+      filtered = filtered.filter(p => p.department === selectedDepartment);
+    }
+    // Filter by pay period? For simplicity, assume payPeriod contains date range string, we'll skip
+    return filtered;
+  }, [payroll, selectedDepartment]);
+
+  // Summary metrics
+  const summary = useMemo(() => {
+    const totalEmployees = employees.length;
+    const activeEmployees = employees.filter(e => e.status === "active").length;
+    const presentToday = attendance.filter(a => {
+      const today = new Date().toISOString().split('T')[0];
+      return a.date === today && a.status === "present";
+    }).length;
+    const onLeaveToday = leaves.filter(l => {
+      const today = new Date().toISOString().split('T')[0];
+      return l.status === "approved" && l.from_date <= today && l.to_date >= today;
+    }).length;
+    const pendingLeaves = leaves.filter(l => l.status === "pending").length;
+    const currentMonthPayroll = payroll.filter(p => {
+      // Assume payPeriod like "Jan 1-15, 2024" - crude check
+      const currentMonth = new Date().toLocaleString('default', { month: 'short' });
+      return p.payPeriod?.includes(currentMonth);
+    }).reduce((sum, p) => sum + (parseFloat(p.netSalary?.replace(/[₹,]/g, '')) || 0), 0);
+    const totalBudget = departments.reduce((sum, d) => sum + (parseFloat(d.payrollBudget?.replace(/[₹,]/g, '')) || 0), 0);
+    const avgPerformance = employees.reduce((sum, e) => sum + (e.performance || 0), 0) / (employees.length || 1);
+
+    return {
+      totalEmployees,
+      activeEmployees,
+      presentToday,
+      onLeaveToday,
+      pendingLeaves,
+      currentMonthPayroll,
+      totalBudget,
+      avgPerformance: avgPerformance.toFixed(1)
+    };
+  }, [employees, attendance, leaves, payroll, departments]);
+
+  // Chart data: Leave by status
+  const leaveStatusData = useMemo(() => {
+    const counts = { pending: 0, approved: 0, rejected: 0 };
+    filteredLeaves.forEach(l => counts[l.status] = (counts[l.status] || 0) + 1);
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [filteredLeaves]);
+
+  // Monthly leave trend
+  const monthlyLeaveData = useMemo(() => {
+    const months = {};
+    leaves.forEach(l => {
+      if (!l.from_date) return;
+      const month = l.from_date.substring(0, 7); // YYYY-MM
+      months[month] = (months[month] || 0) + 1;
+    });
+    return Object.entries(months)
+      .map(([month, count]) => ({ month, count }))
+      .sort((a, b) => a.month.localeCompare(b.month))
+      .slice(-12);
+  }, [leaves]);
+
+  // Attendance source distribution
+  const attendanceSourceData = useMemo(() => {
+    const counts = { biometric: 0, manual: 0, hybrid: 0 };
+    filteredAttendance.forEach(a => counts[a.source] = (counts[a.source] || 0) + 1);
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [filteredAttendance]);
+
+  // Daily attendance summary (for bar chart)
+  const dailyAttendanceData = useMemo(() => {
+    const days = {};
+    filteredAttendance.forEach(a => {
+      if (!a.date) return;
+      if (!days[a.date]) days[a.date] = { present: 0, late: 0, absent: 0, total: 0 };
+      if (a.status === 'present') days[a.date].present += 1;
+      else if (a.status === 'late') days[a.date].late += 1;
+      else if (a.status === 'absent') days[a.date].absent += 1;
+      days[a.date].total += 1;
+    });
+    return Object.entries(days)
+      .map(([date, counts]) => ({ date, ...counts }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-14); // last 14 days
+  }, [filteredAttendance]);
+
+  // Payroll monthly total
+  const monthlyPayrollData = useMemo(() => {
+    const months = {};
+    payroll.forEach(p => {
+      // Crude extraction: assume payPeriod like "Jan 1-15, 2024"
+      const match = p.payPeriod?.match(/(\w{3}) \d{1,2}-\d{1,2}, (\d{4})/);
+      if (match) {
+        const month = `${match[2]}-${match[1]}`; // e.g., "2024-Jan"
+        const net = parseFloat(p.netSalary?.replace(/[₹,]/g, '')) || 0;
+        months[month] = (months[month] || 0) + net;
+      }
+    });
+    return Object.entries(months)
+      .map(([month, total]) => ({ month, total }))
+      .sort((a, b) => a.month.localeCompare(b.month))
+      .slice(-12);
+  }, [payroll]);
+
+  // Department distribution
+  const departmentEmployeeData = useMemo(() => {
+    const deptCounts = {};
+    employees.forEach(e => {
+      deptCounts[e.department] = (deptCounts[e.department] || 0) + 1;
+    });
+    return Object.entries(deptCounts).map(([name, count]) => ({ name, count }));
+  }, [employees]);
+
+  // Gender diversity
+  const genderData = useMemo(() => {
+    const counts = { Male: 0, Female: 0, Other: 0 };
+    employees.forEach(e => {
+      const gender = e.personalInfo?.gender || e.gender;
+      if (gender) counts[gender] = (counts[gender] || 0) + 1;
+    });
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [employees]);
+
+  // Recent audit logs
+  const recentAudit = useMemo(() => auditLogs.slice(0, 10), [auditLogs]);
+
+  // Department summary table
+  const departmentSummary = useMemo(() => {
+    return departments.map(d => ({
+      ...d,
+      employeeCount: employees.filter(e => e.department === d.name).length,
+      // actual spend not available yet
+    }));
+  }, [departments, employees]);
+
+  // Colors for charts
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF'];
+
+  if (loading) {
+    return (
+      <div className={isDark ? "min-h-screen bg-gray-900" : "min-h-screen bg-gray-50"}>
+        <TopNav />
+        <div className="p-6 flex justify-center items-center h-64">
+          <div className="text-lg">Loading report data...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={isDark ? "min-h-screen bg-gray-900" : "min-h-screen bg-gray-50"}>
+        <TopNav />
+        <div className="p-6">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={isDark ? "min-h-screen bg-gray-900" : "min-h-screen bg-gray-50"}>
       <TopNav />
-      
-      <div className="p-4 md:p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-              <h1 className={isDark ? "text-2xl md:text-3xl font-bold text-white" : "text-2xl md:text-3xl font-bold text-gray-900"}>Analytics & Reports</h1>
-              <p className={isDark ? "text-gray-400 mt-2" : "text-gray-600 mt-2"}>Comprehensive analytics and reporting dashboard</p>
+
+      <div className="p-4 md:p-6 space-y-6">
+        {/* Header with filters */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h1 className={isDark ? "text-2xl font-bold text-white" : "text-2xl font-bold text-gray-900"}>
+            Reports & Analytics
+          </h1>
+          <div className="flex flex-wrap gap-3">
+            {/* Date Range */}
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={dateRange.startDate}
+                onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                className={isDark ? "bg-gray-800 border border-gray-600 text-white px-3 py-1.5 rounded" : "border border-gray-300 px-3 py-1.5 rounded"}
+              />
+              <span className={isDark ? "text-gray-400" : "text-gray-600"}>to</span>
+              <input
+                type="date"
+                value={dateRange.endDate}
+                onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                className={isDark ? "bg-gray-800 border border-gray-600 text-white px-3 py-1.5 rounded" : "border border-gray-300 px-3 py-1.5 rounded"}
+              />
             </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={handleGenerateReport}
-                disabled={isLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Generate Report
-                  </>
-                )}
-              </button>
-              
-              <div className="relative">
-                <button className={isDark ? "px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2" : "px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Export
-                </button>
-                <div className={isDark ? "absolute right-0 mt-1 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 py-1 hidden group-hover:block z-10" : "absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 hidden group-hover:block z-10"}>
-                  <button onClick={() => handleExport('pdf')} className={isDark ? "block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" : "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"}>
-                    Export as PDF
-                  </button>
-                  <button onClick={() => handleExport('excel')} className={isDark ? "block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" : "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"}>
-                    Export as Excel
-                  </button>
-                  <button onClick={() => handleExport('csv')} className={isDark ? "block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700" : "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"}>
-                    Export as CSV
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4 mb-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6"}>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Report Type */}
-              <div>
-                <label className={isDark ? "block text-sm font-medium text-gray-300 mb-1" : "block text-sm font-medium text-gray-700 mb-1"}>Report Type</label>
-                <select
-                  value={selectedReportType}
-                  onChange={(e) => setSelectedReportType(e.target.value)}
-                  className={isDark ? "w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"}
-                >
-                  {reportTypes.map(type => (
-                    <option key={type.id} value={type.id}>{type.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Department Filter */}
-              <div>
-                <label className={isDark ? "block text-sm font-medium text-gray-300 mb-1" : "block text-sm font-medium text-gray-700 mb-1"}>Department</label>
-                <select
-                  value={selectedDepartment}
-                  onChange={(e) => setSelectedDepartment(e.target.value)}
-                  className={isDark ? "w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" : "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"}
-                >
-                  {departments.map(dept => (
-                    <option key={dept.id} value={dept.id}>{dept.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Time Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Time Range</label>
-                <select
-                  value={selectedTimeRange}
-                  onChange={(e) => setSelectedTimeRange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-                  {timeRanges.map(range => (
-                    <option key={range.id} value={range.id}>{range.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Date Range (visible when custom is selected) */}
-              {selectedTimeRange === 'custom' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="date"
-                      value={filterStartDate}
-                      onChange={(e) => setFilterStartDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                    />
-                    <input
-                      type="date"
-                      value={filterEndDate}
-                      onChange={(e) => setFilterEndDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Selected Filters Display */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-sm text-gray-600">Active filters:</span>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                  {reportTypes.find(r => r.id === selectedReportType)?.name}
-                </span>
-                <span className="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                  {departments.find(d => d.id === selectedDepartment)?.name}
-                </span>
-                <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
-                  {timeRanges.find(t => t.id === selectedTimeRange)?.name}
-                </span>
-                {filterStartDate && filterEndDate && (
-                  <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                    {formatDate(filterStartDate)} - {formatDate(filterEndDate)}
-                  </span>
-                )}
-              </div>
-            </div>
+            {/* Department filter */}
+            <select
+              value={selectedDepartment}
+              onChange={(e) => setSelectedDepartment(e.target.value)}
+              className={isDark ? "bg-gray-800 border border-gray-600 text-white px-3 py-1.5 rounded" : "border border-gray-300 px-3 py-1.5 rounded"}
+            >
+              <option value="all">All Departments</option>
+              {departments.map(dept => (
+                <option key={dept.id} value={dept.name}>{dept.name}</option>
+              ))}
+            </select>
+            {/* Export buttons */}
+            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+              Export PDF
+            </button>
+            <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+              Export Excel
+            </button>
           </div>
         </div>
 
-        {/* Report Content */}
-        <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4 md:p-6" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6"}>
-          {renderReportContent()}
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card title="Total Employees" value={summary.totalEmployees} icon="👥" isDark={isDark} />
+          <Card title="Active Employees" value={summary.activeEmployees} icon="✅" isDark={isDark} />
+          <Card title="Present Today" value={summary.presentToday} icon="📋" isDark={isDark} />
+          <Card title="On Leave Today" value={summary.onLeaveToday} icon="🏖️" isDark={isDark} />
+          <Card title="Pending Leaves" value={summary.pendingLeaves} icon="⏳" isDark={isDark} />
+          <Card title="Payroll This Month" value={`₹${summary.currentMonthPayroll.toLocaleString()}`} icon="💰" isDark={isDark} />
+          <Card title="Total Budget" value={`₹${summary.totalBudget.toLocaleString()}`} icon="📊" isDark={isDark} />
+          <Card title="Avg Performance" value={summary.avgPerformance} icon="⭐" isDark={isDark} />
         </div>
 
-        {/* Quick Stats Footer */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
-            <div className={isDark ? "text-sm text-gray-400" : "text-sm text-gray-600"}>Report Generated</div>
-            <div className={isDark ? "font-semibold text-white" : "font-semibold text-gray-900"}>{new Date().toLocaleDateString()}</div>
+        {/* Leave Reports */}
+        <Section title="Leave Reports" isDark={isDark}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard title="Leave by Status" isDark={isDark}>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={leaveStatusData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {leaveStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+            <ChartCard title="Monthly Leave Trend" isDark={isDark}>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={monthlyLeaveData}>
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="count" stroke="#8884d8" />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartCard>
           </div>
-          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
-            <div className={isDark ? "text-sm text-gray-400" : "text-sm text-gray-600"}>Data Points</div>
-            <div className={isDark ? "font-semibold text-white" : "font-semibold text-gray-900"}>1,248 records</div>
+          {/* Recent leaves table */}
+          <div className="mt-4 overflow-x-auto">
+            <h3 className={`font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Recent Leave Applications</h3>
+            <table className={`min-w-full divide-y ${isDark ? "divide-gray-700" : "divide-gray-200"}`}>
+              <thead className={isDark ? "bg-gray-800" : "bg-gray-50"}>
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Employee</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Department</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Date Range</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Reason</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Status</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? "divide-gray-700" : "divide-gray-200"}`}>
+                {leaves.slice(0, 5).map(leave => {
+                  const emp = employees.find(e => e.id === leave.emp_id);
+                  return (
+                    <tr key={leave.id}>
+                      <td className="px-4 py-2">{emp?.name || leave.name}</td>
+                      <td className="px-4 py-2">{emp?.department || '-'}</td>
+                      <td className="px-4 py-2">{leave.from_date} — {leave.to_date}</td>
+                      <td className="px-4 py-2">{leave.reason}</td>
+                      <td className="px-4 py-2">
+                        <span className={`px-2 py-1 rounded text-xs ${leave.status === 'approved' ? 'bg-green-100 text-green-800' : leave.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                          {leave.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
-            <div className={isDark ? "text-sm text-gray-400" : "text-sm text-gray-600"}>Last Updated</div>
-            <div className={isDark ? "font-semibold text-white" : "font-semibold text-gray-900"}>Today, 10:30 AM</div>
+        </Section>
+
+        {/* Attendance Reports */}
+        <Section title="Attendance Reports" isDark={isDark}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard title="Attendance by Source" isDark={isDark}>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={attendanceSourceData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {attendanceSourceData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+            <ChartCard title="Daily Attendance (Last 14 Days)" isDark={isDark}>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={dailyAttendanceData}>
+                  <XAxis dataKey="date" angle={-45} textAnchor="end" height={60} interval={0} />
+                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="present" stackId="a" fill="#00C49F" />
+                  <Bar dataKey="late" stackId="a" fill="#FFBB28" />
+                  <Bar dataKey="absent" stackId="a" fill="#FF8042" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
           </div>
-          <div className={isDark ? "bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4" : "bg-white rounded-lg shadow-sm border border-gray-200 p-4"}>
-            <div className={isDark ? "text-sm text-gray-400" : "text-sm text-gray-600"}>Report Accuracy</div>
-            <div className={isDark ? "font-semibold text-green-400" : "font-semibold text-green-600"}>99.8%</div>
+          {/* Top latecomers table */}
+          <div className="mt-4">
+            <h3 className={`font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Top Latecomers</h3>
+            {/* Implementation skipped for brevity; would need to compute from attendance */}
+            <p className="text-gray-500">Coming soon...</p>
           </div>
-        </div>
+        </Section>
+
+        {/* Payroll Reports */}
+        <Section title="Payroll Reports" isDark={isDark}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard title="Monthly Payroll Total" isDark={isDark}>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={monthlyPayrollData}>
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                  <Legend />
+                  <Bar dataKey="total" fill="#0088FE" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+            <ChartCard title="Payroll Status" isDark={isDark}>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Paid', value: payroll.filter(p => p.status === 'Paid').length },
+                      { name: 'Pending', value: payroll.filter(p => p.status === 'Pending').length },
+                      { name: 'Processing', value: payroll.filter(p => p.status === 'Processing').length }
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    <Cell fill="#00C49F" />
+                    <Cell fill="#FFBB28" />
+                    <Cell fill="#0088FE" />
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+          {/* Pending payments table */}
+          <div className="mt-4 overflow-x-auto">
+            <h3 className={`font-medium mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>Pending Payments</h3>
+            <table className={`min-w-full divide-y ${isDark ? "divide-gray-700" : "divide-gray-200"}`}>
+              <thead className={isDark ? "bg-gray-800" : "bg-gray-50"}>
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Employee</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Department</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Pay Period</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Net Salary</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? "divide-gray-700" : "divide-gray-200"}`}>
+                {payroll.filter(p => p.status === 'Pending').slice(0, 5).map(p => (
+                  <tr key={p.id}>
+                    <td className="px-4 py-2">{p.name}</td>
+                    <td className="px-4 py-2">{p.department}</td>
+                    <td className="px-4 py-2">{p.payPeriod}</td>
+                    <td className="px-4 py-2">{p.netSalary}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Section>
+
+        {/* Employee Reports */}
+        <Section title="Employee Reports" isDark={isDark}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard title="Employees by Department" isDark={isDark}>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={departmentEmployeeData}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="count" fill="#00C49F" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+            <ChartCard title="Gender Diversity" isDark={isDark}>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={genderData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {genderData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+        </Section>
+
+        {/* Department Reports */}
+        <Section title="Department Reports" isDark={isDark}>
+          <div className="overflow-x-auto">
+            <table className={`min-w-full divide-y ${isDark ? "divide-gray-700" : "divide-gray-200"}`}>
+              <thead className={isDark ? "bg-gray-800" : "bg-gray-50"}>
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Department</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Manager</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Employees</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Budget</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Actual Spend</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Utilization</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? "divide-gray-700" : "divide-gray-200"}`}>
+                {departmentSummary.map(dept => {
+                  const budgetNum = parseFloat(dept.payrollBudget?.replace(/[₹,]/g, '')) || 0;
+                  const actualNum = 0; // Not available yet
+                  const utilization = budgetNum ? ((actualNum / budgetNum) * 100).toFixed(1) : '0.0';
+                  return (
+                    <tr key={dept.id}>
+                      <td className="px-4 py-2 font-medium">{dept.name}</td>
+                      <td className="px-4 py-2">{dept.manager}</td>
+                      <td className="px-4 py-2">{dept.employeeCount}</td>
+                      <td className="px-4 py-2">{dept.payrollBudget}</td>
+                      <td className="px-4 py-2">₹0</td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <span>{utilization}%</span>
+                          <div className="w-20 h-2 bg-gray-200 rounded">
+                            <div className="h-2 bg-blue-600 rounded" style={{ width: `${Math.min(utilization, 100)}%` }}></div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Section>
+
+        {/* Recent Activities */}
+        <Section title="Recent Activities" isDark={isDark}>
+          <div className="overflow-x-auto">
+            <table className={`min-w-full divide-y ${isDark ? "divide-gray-700" : "divide-gray-200"}`}>
+              <thead className={isDark ? "bg-gray-800" : "bg-gray-50"}>
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Timestamp</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Action</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">Description</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase">User</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? "divide-gray-700" : "divide-gray-200"}`}>
+                {recentAudit.map(log => (
+                  <tr key={log.id}>
+                    <td className="px-4 py-2">{new Date(log.timestamp).toLocaleString()}</td>
+                    <td className="px-4 py-2">
+                      <span className={`px-2 py-1 rounded text-xs ${log.action === 'CREATE' ? 'bg-green-100 text-green-800' : log.action === 'UPDATE' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`}>
+                        {log.action}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2">{log.description}</td>
+                    <td className="px-4 py-2">{log.userId}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Section>
       </div>
     </div>
   );
 };
 
-export default Reports;
+// Helper components
+const Card = ({ title, value, icon, isDark }) => (
+  <div className={isDark ? "bg-gray-800 p-4 rounded-xl border border-gray-700" : "bg-white p-4 rounded-xl border border-gray-200"}>
+    <div className="flex items-center justify-between">
+      <div>
+        <p className={isDark ? "text-gray-400 text-sm" : "text-gray-600 text-sm"}>{title}</p>
+        <p className={isDark ? "text-2xl font-bold text-white" : "text-2xl font-bold text-gray-900"}>{value}</p>
+      </div>
+      <div className="text-3xl">{icon}</div>
+    </div>
+  </div>
+);
+
+const Section = ({ title, children, isDark }) => (
+  <div className={isDark ? "bg-gray-800 rounded-xl p-6 border border-gray-700" : "bg-white rounded-xl p-6 border border-gray-200"}>
+    <h2 className={`text-xl font-semibold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h2>
+    {children}
+  </div>
+);
+
+const ChartCard = ({ title, children, isDark }) => (
+  <div className={isDark ? "bg-gray-700/50 p-4 rounded-lg" : "bg-gray-50 p-4 rounded-lg"}>
+    <h3 className={`font-medium mb-3 ${isDark ? "text-gray-300" : "text-gray-700"}`}>{title}</h3>
+    {children}
+  </div>
+);
+
+export default Report;

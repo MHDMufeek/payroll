@@ -96,7 +96,7 @@ const AddEmployeeForm = React.memo(({
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
                          
-                        First Name *
+                        First Name 
                       </label>
                       <input
                         type="text"
@@ -107,9 +107,7 @@ const AddEmployeeForm = React.memo(({
                           formErrors.firstName ? 'border-red-500' : 'border-gray-300'
                         }`}
                       />
-                      {formErrors.firstName && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.firstName}</p>
-                      )}
+                    
                     </div>
 
                     <div>
@@ -125,9 +123,7 @@ const AddEmployeeForm = React.memo(({
                           formErrors.lastName ? 'border-red-500' : 'border-gray-300'
                         }`}
                       />
-                      {formErrors.lastName && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.lastName}</p>
-                      )}
+                     
                     </div>
 
                     <div>
@@ -143,9 +139,7 @@ const AddEmployeeForm = React.memo(({
                           formErrors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
                         }`}
                       />
-                      {formErrors.dateOfBirth && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.dateOfBirth}</p>
-                      )}
+                    
                     </div>
 
                     <div>
@@ -165,9 +159,7 @@ const AddEmployeeForm = React.memo(({
                         <option value="Female">Female</option>
                         <option value="Other">Other</option>
                       </select>
-                      {formErrors.gender && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.gender}</p>
-                      )}
+                    
                     </div>
                   </div>
 
@@ -187,9 +179,7 @@ const AddEmployeeForm = React.memo(({
                         }`}
                         placeholder="employee@company.com"
                       />
-                      {formErrors.email && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
-                      )}
+                    
                     </div>
 
                     <div>
@@ -206,9 +196,7 @@ const AddEmployeeForm = React.memo(({
                         }`}
                         placeholder="+94 77 123 4567"
                       />
-                      {formErrors.mobile && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.mobile}</p>
-                      )}
+                    
                     </div>
 
                     <div>
@@ -225,9 +213,7 @@ const AddEmployeeForm = React.memo(({
                         }`}
                         placeholder="e.g., 199012345678"
                       />
-                      {formErrors.nicNumber && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.nicNumber}</p>
-                      )}
+                    
                     </div>
 
                     <div>
@@ -243,9 +229,7 @@ const AddEmployeeForm = React.memo(({
                           formErrors.permanentAddress ? 'border-red-500' : 'border-gray-300'
                         }`}
                       />
-                      {formErrors.permanentAddress && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.permanentAddress}</p>
-                      )}
+                    
                     </div>
                   </div>
                 </div>
@@ -282,9 +266,7 @@ const AddEmployeeForm = React.memo(({
                         <option value="Ordinary Level">Ordinary Level (O/L)</option>
                         
                       </select>
-                      {formErrors.highestQualification && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.highestQualification}</p>
-                      )}
+                  
                     </div>
 
                     <div>
@@ -398,9 +380,7 @@ const AddEmployeeForm = React.memo(({
                         }`}
                         placeholder="e.g., Senior Software Engineer"
                       />
-                      {formErrors.designation && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.designation}</p>
-                      )}
+                  
                     </div>
 
                     <div>
@@ -420,9 +400,7 @@ const AddEmployeeForm = React.memo(({
                           <option key={dept} value={dept}>{dept}</option>
                         ))}
                       </select>
-                      {formErrors.department && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.department}</p>
-                      )}
+                   
                     </div>
 
                     <div>
@@ -458,9 +436,7 @@ const AddEmployeeForm = React.memo(({
                           formErrors.dateOfJoining ? 'border-red-500' : 'border-gray-300'
                         }`}
                       />
-                      {formErrors.dateOfJoining && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.dateOfJoining}</p>
-                      )}
+                     
                     </div>
 
                     <div>
@@ -482,9 +458,7 @@ const AddEmployeeForm = React.memo(({
                           step="0.01"
                         />
                       </div>
-                      {formErrors.basicSalary && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.basicSalary}</p>
-                      )}
+                 
                     </div>
 
                     <div>
@@ -548,9 +522,7 @@ const AddEmployeeForm = React.memo(({
                         }`}
                         placeholder="e.g., EPF123456789"
                       />
-                      {formErrors.epfNumber && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.epfNumber}</p>
-                      )}
+                   
                     </div>
 
                     <div>
@@ -567,9 +539,7 @@ const AddEmployeeForm = React.memo(({
                         }`}
                         placeholder="e.g., ETF987654321"
                       />
-                      {formErrors.etfNumber && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.etfNumber}</p>
-                      )}
+                  
                     </div>
 
                     <div>
@@ -677,7 +647,7 @@ const AddEmployeeForm = React.memo(({
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-white mb-1">
-                        Bank Name *
+                        Bank Name 
                       </label>
                       <select
                         name="bankName"
@@ -688,16 +658,14 @@ const AddEmployeeForm = React.memo(({
                         }`}
                       >
                         <option value="">Select Bank</option>
-                        <option value="Bank of America">Bank of America</option>
-                        <option value="Chase Bank">Chase Bank</option>
-                        <option value="Wells Fargo">Wells Fargo</option>
-                        <option value="Citibank">Citibank</option>
-                        <option value="HSBC">HSBC</option>
-                        <option value="Other">Other</option>
+                        <option value="Bank of America">Bank of ceylon</option>
+                        <option value="Chase Bank">Sampath Bank</option>
+                        <option value="Wells Fargo">Peoples Bank</option>
+                        <option value="Citibank">Commercial Bank</option>
+                        <option value="HSBC">Nation Trust Bank</option>
+                        <option value="Other">HNB</option>
                       </select>
-                      {formErrors.bankName && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.bankName}</p>
-                      )}
+                  
                     </div>
 
                     <div>
@@ -714,9 +682,7 @@ const AddEmployeeForm = React.memo(({
                         }`}
                         placeholder="e.g., New York Main Branch"
                       />
-                      {formErrors.branch && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.branch}</p>
-                      )}
+                 
                     </div>
 
                     <div>
@@ -733,9 +699,7 @@ const AddEmployeeForm = React.memo(({
                         }`}
                         placeholder="e.g., 1234567890"
                       />
-                      {formErrors.accountNumber && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.accountNumber}</p>
-                      )}
+                  
                     </div>
                   </div>
 
@@ -758,9 +722,7 @@ const AddEmployeeForm = React.memo(({
                         <option value="Salary">Salary</option>
                         <option value="Checking">Checking</option>
                       </select>
-                      {formErrors.accountType && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.accountType}</p>
-                      )}
+                    
                     </div>
 
                     <div>
@@ -777,9 +739,7 @@ const AddEmployeeForm = React.memo(({
                         }`}
                         placeholder="As per bank records"
                       />
-                      {formErrors.accountHolderName && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.accountHolderName}</p>
-                      )}
+                     
                     </div>
 
                     <div>
@@ -883,11 +843,13 @@ const AddEmployeeForm = React.memo(({
                               </svg>
                               <div>
                                 <span className="text-sm text-gray-600 block">
-                                  {formData.cvDocument.name}
+                                  {formData.cvDocument?.name || 'CV Document'}
                                 </span>
-                                <span className="text-xs text-gray-500">
-                                  {(formData.cvDocument.size / 1024 / 1024).toFixed(2)} MB
-                                </span>
+                                {formData.cvDocument?.size && (
+                                  <span className="text-xs text-gray-500">
+                                    {(formData.cvDocument.size / 1024 / 1024).toFixed(2)} MB
+                                  </span>
+                                )}
                               </div>
                             </div>
                           ) : (
@@ -1017,16 +979,28 @@ const AddEmployeeForm = React.memo(({
                 </button>
                 
                 {currentStep < 6 ? ( // Changed from 5 to 6
-                  <button
-                    type="button"
-                    onClick={nextStep}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                  >
-                    Next Step
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                  <>
+                    {/* submit available on every step */}
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Submit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    >
+                      Next Step
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </>
                 ) : (
                   <button
                     type="submit"
@@ -1129,34 +1103,38 @@ const EmployeeCard = React.memo(({ employee, onView, onEdit, onDelete, isDark })
           </svg>
           <span className="truncate">{employee.email}</span>
         </div>
-        <div className={`flex items-center gap-2 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>Joined {new Date(employee.hireDate).toLocaleDateString()}</span>
-        </div>
+        {employee.hireDate && (
+          <div className={`flex items-center gap-2 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Joined {new Date(employee.hireDate).toLocaleDateString()}</span>
+          </div>
+        )}
       </div>
 
       {/* Skills */}
-      <div className="mt-4">
-        <div className="flex flex-wrap gap-2">
-          {employee.skills.slice(0, 3).map((skill, index) => (
-            <span
-              key={index}
-              className={`px-2 py-1 text-xs font-medium rounded ${
-                isDark ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {skill}
-            </span>
-          ))}
-          {employee.skills.length > 3 && (
-            <span className={`px-2 py-1 text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-              +{employee.skills.length - 3} more
-            </span>
-          )}
+      {employee.skills && employee.skills.length > 0 && (
+        <div className="mt-4">
+          <div className="flex flex-wrap gap-2">
+            {employee.skills.slice(0, 3).map((skill, index) => (
+              <span
+                key={index}
+                className={`px-2 py-1 text-xs font-medium rounded ${
+                  isDark ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                {skill}
+              </span>
+            ))}
+            {employee.skills.length > 3 && (
+              <span className={`px-2 py-1 text-xs font-medium ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                +{employee.skills.length - 3} more
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 });
@@ -1270,9 +1248,9 @@ const Employees = () => {
   const filteredEmployees = employees
     .filter(employee => {
       const matchesSearch = 
-        employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.email.toLowerCase().includes(searchTerm.toLowerCase());
+        (employee.name && employee.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (employee.position && employee.position.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (employee.email && employee.email.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchesDepartment = 
         selectedDepartment === 'all' || employee.department === selectedDepartment;
@@ -1282,13 +1260,13 @@ const Employees = () => {
     .sort((a, b) => {
       switch(sortBy) {
         case 'name':
-          return a.name.localeCompare(b.name);
+          return (a.name || '').localeCompare(b.name || '');
         case 'department':
-          return a.department.localeCompare(b.department);
+          return (a.department || '').localeCompare(b.department || '');
         case 'hireDate':
-          return new Date(b.hireDate) - new Date(a.hireDate);
+          return (new Date(b.hireDate) || 0) - (new Date(a.hireDate) || 0);
         case 'salary':
-          return parseInt(b.salary.replace(/[$,]/g, '')) - parseInt(a.salary.replace(/[$,]/g, ''));
+          return parseInt((b.salary || '').replace(/[$,]/g, '') || 0) - parseInt((a.salary || '').replace(/[$,]/g, '') || 0);
         default:
           return 0;
       }
@@ -1298,9 +1276,9 @@ const Employees = () => {
   const stats = {
     total: employees.length,
     active: employees.filter(emp => emp.status === 'active').length,
-    departments: [...new Set(employees.map(emp => emp.department))].length,
+    departments: [...new Set(employees.map(emp => emp.department).filter(Boolean))].length,
     avgPerformance: employees.length > 0 
-      ? (employees.reduce((acc, emp) => acc + emp.performance, 0) / employees.length).toFixed(1)
+      ? (employees.reduce((acc, emp) => acc + (emp.performance || 0), 0) / employees.length).toFixed(1)
       : '0.0'
   };
 
@@ -1324,47 +1302,42 @@ const Employees = () => {
   }, [isAddModalOpen]);
 
   // Fetch employees from backend on mount
-  useEffect(() => {
-    let mounted = true;
-    const fetchEmployees = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get('http://localhost:5000/employees');
-        if (mounted) {
-          // Map backend rows to UI shape
-          const data = res.data.map(row => ({
-            id: row.id,
-            name: row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim(),
-            firstName: row.first_name,
-            lastName: row.last_name,
-            email: row.email,
-            department: row.department,
-            position: row.position,
-            hireDate: row.hire_date,
-            salary: row.basic_salary ? `$${parseFloat(row.basic_salary).toLocaleString()}` : undefined,
-            status: row.status,
-            employeePhoto: row.documents ? (JSON.parse(row.documents).employeePhoto || null) : null,
-            cvDocument: row.documents ? (JSON.parse(row.documents).cvDocument || null) : null,
-            additionalDocuments: row.documents ? (JSON.parse(row.documents).additionalDocuments || []) : [],
-            personalInfo: row.personal_info ? JSON.parse(row.personal_info) : null,
-            qualifications: row.qualifications ? JSON.parse(row.qualifications) : null,
-            jobDetails: row.job_details ? JSON.parse(row.job_details) : null,
-            epfEtfDetails: row.epf_etf ? JSON.parse(row.epf_etf) : null,
-            bankDetails: row.bank_details ? JSON.parse(row.bank_details) : null,
-            skills: row.skills ? JSON.parse(row.skills) : []
-          }));
-          setEmployees(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch employees:', err.response?.data || err.message || err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEmployees();
-    return () => { mounted = false; };
+  const fetchEmployees = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get('http://localhost:5000/employees');
+      // Map backend rows to UI shape while preserving entire document
+      const data = res.data.map(row => ({
+        ...row, // keep every field that came from the database
+        id: row.id || row._id,
+        name: row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim(),
+        email: row.email,
+        department: row.department,
+        position: row.position,
+        hireDate: row.hire_date,
+        salary: row.basic_salary ? `$${parseFloat(row.basic_salary).toLocaleString()}` : undefined,
+        status: row.status,
+        employeePhoto: row.documents ? (JSON.parse(row.documents).employeePhoto || null) : null,
+        cvDocument: row.documents ? (JSON.parse(row.documents).cvDocument || null) : null,
+        additionalDocuments: row.documents ? (JSON.parse(row.documents).additionalDocuments || []) : [],
+        personalInfo: row.personal_info ? JSON.parse(row.personal_info) : null,
+        qualifications: row.qualifications ? JSON.parse(row.qualifications) : null,
+        jobDetails: row.job_details ? JSON.parse(row.job_details) : null,
+        epfEtfDetails: row.epf_etf ? JSON.parse(row.epf_etf) : null,
+        bankDetails: row.bank_details ? JSON.parse(row.bank_details) : null,
+        skills: row.skills ? JSON.parse(row.skills) : []
+      }));
+      setEmployees(data);
+    } catch (err) {
+      console.error('Failed to fetch employees:', err.response?.data || err.message || err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
 
   // Use useCallback for form handlers to prevent unnecessary re-renders
   const handleFormChange = useCallback((e) => {
@@ -1449,10 +1422,9 @@ const Employees = () => {
   };
 
   const nextStep = useCallback(() => {
-    if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 6)); // Changed from 5 to 6
-    }
-  }, [currentStep, validateStep]);
+    // allow moving forward regardless of form content
+    setCurrentStep(prev => Math.min(prev + 1, 6)); // Changed from 5 to 6
+  }, [currentStep]);
 
   const prevStep = useCallback(() => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
@@ -1578,61 +1550,89 @@ const Employees = () => {
           }
         };
 
-        // Prepare payload to send to backend
+        // Prepare payload to send to backend - using snake_case for database compatibility
         const payload = {
-          employeeId: finalData.employeeId || finalData.employee_id,
-          firstName: finalData.firstName,
-          lastName: finalData.lastName,
+          employee_id: finalData.employeeId || finalData.employee_id,
+          first_name: finalData.firstName,
+          last_name: finalData.lastName,
           name: `${finalData.firstName} ${finalData.lastName}`.trim(),
           email: finalData.email,
           mobile: finalData.mobile,
           department: finalData.department,
           position: finalData.designation,
-          hireDate: finalData.dateOfJoining || finalData.hireDate,
-          dateOfBirth: finalData.dateOfBirth,
+          hire_date: finalData.dateOfJoining || finalData.hireDate,
+          date_of_birth: finalData.dateOfBirth,
           gender: finalData.gender,
-          nicNumber: finalData.nicNumber,
-          basicSalary: finalData.basicSalary,
-          allowances: finalData.allowances,
-          grossSalary: finalData.grossSalary || grossSalary,
+          nic_number: finalData.nicNumber,
+          basic_salary: parseFloat(finalData.basicSalary) || 0,
+          allowances: parseFloat(finalData.allowances) || 0,
+          gross_salary: parseFloat(finalData.grossSalary || grossSalary) || 0,
           status: 'active',
-          epfNumber: finalData.epfNumber,
-          etfNumber: finalData.etfNumber,
-          bankDetails: finalData.bankDetails || finalData.bank_details || null,
-          personalInfo: finalData.personalInfo || {
+          epf_number: finalData.epfNumber,
+          etf_number: finalData.etfNumber,
+          bank_details: finalData.bankDetails ? JSON.stringify(finalData.bankDetails) : JSON.stringify({
+            bankName: finalData.bankName,
+            branch: finalData.branch,
+            accountNumber: finalData.accountNumber,
+            accountType: finalData.accountType,
+            accountHolderName: finalData.accountHolderName,
+            paymentMethod: finalData.paymentMethod
+          }),
+          personal_info: JSON.stringify(finalData.personalInfo || {
             firstName: finalData.firstName,
             lastName: finalData.lastName,
             dateOfBirth: finalData.dateOfBirth,
             gender: finalData.gender,
             nicNumber: finalData.nicNumber,
             address: finalData.permanentAddress
-          },
-          qualifications: finalData.qualifications || null,
-          jobDetails: finalData.jobDetails || null,
-          epfEtf: finalData.epfEtf || null,
-          documents: {
+          }),
+          qualifications: JSON.stringify(finalData.qualifications || {
+            highestQualification: finalData.highestQualification,
+            university: finalData.university,
+            yearOfGraduation: finalData.yearOfGraduation,
+            degree: finalData.degree,
+            professionalQualifications: finalData.professionalQualifications
+          }),
+          job_details: JSON.stringify(finalData.jobDetails || {
+            employeeId: finalData.employeeId,
+            designation: finalData.designation,
+            employmentType: finalData.employmentType,
+            reportingManager: finalData.reportingManager,
+            workLocation: finalData.workLocation,
+            basicSalary: finalData.basicSalary,
+            allowances: finalData.allowances,
+            grossSalary: finalData.grossSalary
+          }),
+          epf_etf: JSON.stringify(finalData.epfEtfDetails || {
+            epfNumber: finalData.epfNumber,
+            etfNumber: finalData.etfNumber,
+            epfStartDate: finalData.epfStartDate,
+            employeeEpfRate: finalData.employeeEpfRate,
+            employerEpfRate: finalData.employerEpfRate,
+            etfRate: finalData.etfRate
+          }),
+          documents: JSON.stringify({
             employeePhoto: employeePhotoBase64 || null,
             cvDocument: cvDocumentBase64 ? { name: formData.cvDocument?.name, data: cvDocumentBase64 } : null,
             additionalDocuments: additionalDocsBase64
-          },
-          skills: skills
+          }),
+          skills: JSON.stringify(skills)
         };
 
         // Send to backend
         try {
-          await axios.post('http://localhost:5000/employees', payload);
+          const response = await axios.post('http://localhost:5000/employees', payload);
+          // after backend has persisted, reload the list so we see exactly what is stored
+          await fetchEmployees();
+          resetForm();
+          setIsAddModalOpen(false);
+          setCurrentStep(1);
+          alert('Employee added successfully!');
         } catch (err) {
           console.error('Failed to save employee to backend:', err.response?.data || err.message || err);
           alert('Failed to save employee to server. See console for details.');
           return;
         }
-
-        // Update local UI after successful save
-        setEmployees([...employees, newEmployee]);
-        resetForm();
-        setIsAddModalOpen(false);
-        setCurrentStep(1);
-        alert('Employee added successfully!');
       };
 
       createEmployee().catch(error => {
@@ -1640,7 +1640,7 @@ const Employees = () => {
         alert('Error adding employee. Please try again.');
       });
     }
-  }, [currentStep, formData, employees, validateStep]);
+  }, [currentStep, formData, employees, validateStep, fetchEmployees]);
 
   const resetForm = useCallback(() => {
     setFormData({
@@ -1766,29 +1766,39 @@ const Employees = () => {
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h3 className="font-medium text-gray-900 mb-3">Personal Information</h3>
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-500 mb-1">Date of Birth</h4>
-                        <p className="font-medium text-gray-900">
-                          {new Date(employee.personalInfo.dateOfBirth).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-500 mb-1">Gender</h4>
-                        <p className="font-medium text-gray-900">{employee.personalInfo.gender}</p>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-500 mb-1">NIC Number</h4>
-                        <p className="font-medium text-gray-900">{employee.personalInfo.nicNumber}</p>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-500 mb-1">Nationality</h4>
-                        <p className="font-medium text-gray-900">{employee.personalInfo.nationality}</p>
-                      </div>
+                      {employee.personalInfo.dateOfBirth && (
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500 mb-1">Date of Birth</h4>
+                          <p className="font-medium text-gray-900">
+                            {new Date(employee.personalInfo.dateOfBirth).toLocaleDateString()}
+                          </p>
+                        </div>
+                      )}
+                      {employee.personalInfo.gender && (
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500 mb-1">Gender</h4>
+                          <p className="font-medium text-gray-900">{employee.personalInfo.gender}</p>
+                        </div>
+                      )}
+                      {employee.personalInfo.nicNumber && (
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500 mb-1">NIC Number</h4>
+                          <p className="font-medium text-gray-900">{employee.personalInfo.nicNumber}</p>
+                        </div>
+                      )}
+                      {employee.personalInfo.nationality && (
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500 mb-1">Nationality</h4>
+                          <p className="font-medium text-gray-900">{employee.personalInfo.nationality}</p>
+                        </div>
+                      )}
                     </div>
-                    <div className="mt-3">
-                      <h4 className="text-sm font-medium text-gray-500 mb-1">Address</h4>
-                      <p className="font-medium text-gray-900">{employee.personalInfo.address}</p>
-                    </div>
+                    {employee.personalInfo.address && (
+                      <div className="mt-3">
+                        <h4 className="text-sm font-medium text-gray-500 mb-1">Address</h4>
+                        <p className="font-medium text-gray-900">{employee.personalInfo.address}</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1796,18 +1806,22 @@ const Employees = () => {
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="font-medium text-gray-900 mb-3">Contact Information</h3>
                   <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      <span>{employee.email}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
-                      <span>{employee.phone}</span>
-                    </div>
+                    {employee.email && (
+                      <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span>{employee.email}</span>
+                      </div>
+                    )}
+                    {employee.phone && (
+                      <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        <span>{employee.phone}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1968,12 +1982,14 @@ const Employees = () => {
                         <button
                           onClick={() => {
                             // Create download link for CV
-                            const link = document.createElement('a');
-                            link.href = employee.cvDocument.data;
-                            link.download = employee.cvDocument.name;
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
+                            if (employee.cvDocument?.data || employee.cvDocument?.name) {
+                              const link = document.createElement('a');
+                              link.href = employee.cvDocument.data || '#';
+                              link.download = employee.cvDocument.name || 'cv.pdf';
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                            }
                           }}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
@@ -1992,7 +2008,7 @@ const Employees = () => {
                                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <span className="text-xs truncate">{doc.name}</span>
+                                <span className="text-xs truncate">{doc.name || 'Document'}</span>
                               </div>
                               <button
                                 onClick={() => {
@@ -2020,7 +2036,7 @@ const Employees = () => {
                 <div className="space-y-3">
                   <button
                     onClick={() => {
-                      // Handle edit (to be implemented)
+                      onEdit && onEdit(employee);
                       onClose();
                     }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-colors"
@@ -2186,6 +2202,8 @@ const Employees = () => {
                   <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Position</th>
                   <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Status</th>
                   <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Actions</th>
+                  {/* raw data column for debugging / full DB record */}
+                  <th className={isDark ? "px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider" : "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"}>Raw</th>
                 </tr>
               </thead>
               <tbody className={isDark ? "divide-y divide-gray-700 bg-gray-800" : "divide-y divide-gray-200 bg-white"}>
@@ -2242,6 +2260,9 @@ const Employees = () => {
                           Delete
                         </button>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 break-words max-w-xs max-h-24 overflow-auto text-xs text-gray-500">
+                      <pre>{JSON.stringify(employee, null, 2)}</pre>
                     </td>
                   </tr>
                 ))}

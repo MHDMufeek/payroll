@@ -1,18 +1,14 @@
-const mysql = require("mysql2");
+// MongoDB connection via mongoose
+const mongoose = require('mongoose');
+const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/payroll';
 
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",      // your MySQL password (leave empty if no password)
-  database: "mypayroll"   // your database name
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log('MongoDB connected ✅');
+}).catch(err => {
+  console.error('MongoDB connection error:', err);
 });
 
-db.connect((err) => {
-  if (err) {
-    console.error("MySQL connection failed:", err);
-  } else {
-    console.log("MySQL connected ✅");
-  }
-});
-
-module.exports = db;
+module.exports = mongoose;
